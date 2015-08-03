@@ -1,0 +1,15 @@
+module MyVinos
+  module Models
+    class User
+      include MongoMapper::Document
+
+      key :username, String, :required => true, :key => true
+      key :first_name, String
+      key :last_name, String
+      key :email, String
+
+      # on :billing_address, :class_name => 'MyVinos.Models.Address'
+      # one :shipping_address, :class_name => 'MyVinos.Models.Address'
+    end
+  end
+end
