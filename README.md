@@ -1,2 +1,2 @@
-# myvinos-app
-MyVinos IOS app
+# myvinos-integration-api
+MyVinos Integration API
