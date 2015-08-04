@@ -3,10 +3,13 @@ require './api/services/hash_service'
 require './api/repositories/token_repository'
 require './api/repositories/user_repository'
 require './api/services/config_service'
+require './api/services/log_service'
 
 require 'ig-identity-rp-validator'
 
 class TokenService
+
+  include LogService
 
   def initialize(key_provider = KeyProvider, hash_service = HashService,
                  token_repository = TokenRepository, user_repository = UserRepository,
@@ -35,7 +38,10 @@ class TokenService
     user = @user_repository.save_or_update_user username
 
     uuid = @hash_service.generate_uuid
-    save_token user.id, external_id, uuid
+    token = save_token user.id, external_id, uuid
+
+    # log
+    log(user.id, 'Token', token.id, 'create_token', 'Create login token')
 
     {:user_id => user.id, :external_id => external_id, :token => uuid}
 

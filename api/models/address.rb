@@ -3,6 +3,7 @@ module MyVinos
     class Address
       include MongoMapper::EmbeddedDocument
 
+      key :type, String # billing or delivery
       key :line_1, String
       key :line_2, String
       key :city, String

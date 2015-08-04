@@ -1,4 +1,6 @@
 require 'rest_client'
+require 'uri'
+require 'net/https'
 
 class RestUtil
 
@@ -25,11 +27,30 @@ class RestUtil
     end
 
     build_response(response)
+    end
+
+  def execute_form_post(uri, auth_header, payload = '')
+    puts "Request uri: #{uri}"
+    puts "Request body: #{payload}"
+
+    response = begin
+      uri = URI(uri)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      req = Net::HTTP::Post.new(uri.path)
+      req.set_form_data(payload)
+
+      http.request(req)
+    rescue => e
+      return build_response e.response
+    end
+
+    build_response(response)
   end
 
   def build_response(response)
     rest_response = RestResponse.new
-    rest_response.response_code = response.code
+    rest_response.response_code = response.code.to_i
     rest_response.response_body = response.body
 
     puts "Response code: #{response.code}"

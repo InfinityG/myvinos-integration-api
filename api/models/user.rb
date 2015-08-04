@@ -7,9 +7,11 @@ module MyVinos
       key :first_name, String
       key :last_name, String
       key :email, String
+      key :balance, Integer
 
-      # on :billing_address, :class_name => 'MyVinos.Models.Address'
-      # one :shipping_address, :class_name => 'MyVinos.Models.Address'
+      many :address, :class_name => 'MyVinos.Models.Address'
+      many :orders, :class_name => 'MyVinos::Models::Order'
+
     end
   end
 end

@@ -1,17 +1,14 @@
-require './api/utils/rest_util'
-require './api/services/config_service'
-require './api/utils/key_provider'
+require './api/gateway/woo_gateway'
 require './api/constants/error_constants'
 require './api/mappers/product_mapper'
 require './api/repositories/cache_repository'
 
 class ProductService
 
-  def initialize(rest_util = RestUtil, key_provider = KeyProvider, config_service = ConfigurationService,
+  def initialize(config_service = ConfigurationService, woo_gateway = WooGateway,
                  cache_repository = CacheRepository, mapper = ProductMapper)
-    @rest_util = rest_util.new
-    @key_provider = key_provider.new
     @config = config_service.new.get_config
+    @woo_gateway = woo_gateway.new
     @mapper = mapper.new
     @cache_repository = cache_repository.new
   end
@@ -20,10 +17,7 @@ class ProductService
     products = @cache_repository.get_products
     return products if (products != nil && products.length > 0)
 
-    uri= "#{@config[:woocommerce_api_uri]}/products?filter[limit]=1000"
-    auth_header = @key_provider.get_woocommerce_key
-
-    response = @rest_util.execute_get(uri, auth_header)
+    response = @woo_gateway.get_all_products
 
     if response.response_code == 200
       result = JSON.parse(response.response_body, :symbolize_names => true)

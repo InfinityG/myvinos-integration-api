@@ -19,7 +19,11 @@ module ConfigurationConstants
         :allowed_origin => 'http://localhost:63342',
         :woocommerce_api_uri => 'https://myvinos.club/wc-api/v2',
         :woocommerce_api_key => 'ck_e7b70d96f2f469c0e29ebe7ba6ea90a2',
-        :woocommerce_api_secret => 'cs_140148e48a6658ee33565b6d9c2a58ea'
+        :woocommerce_api_secret => 'cs_140148e48a6658ee33565b6d9c2a58ea',
+        :peachpayments_api_uri => 'https://test.oppwa.com/v1',
+        :peachpayments_api_user_id => 'ff808081392eb9b201392f0b6d0200a3',
+        :peachpayments_api_password => 'wCJFfx6F',
+        :peachpayments_api_entity_id => 'ff808081392eb9b201392f0bfe3800a9'
     }
 
     TEST = {
