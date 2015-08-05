@@ -1,11 +1,9 @@
 module MyVinos
   module Models
     class Transaction
-      include MongoMapper::Document
+      include MongoMapper::EmbeddedDocument
 
-      key :user_id, String
       key :type, String
-      key :order_id, String
       key :checkout_id, String
       key :amount, String
       key :currency, String

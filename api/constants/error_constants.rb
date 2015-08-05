@@ -1,8 +1,11 @@
 module ErrorConstants
 
   module ApiErrors
-    WOOCOMMERCE_REQUEST_ERROR = 'WooCommerce request error'
-    PEACH_PAYMENTS_REQUEST_ERROR = 'WooCommerce request error'
+    PRODUCT_REQUEST_ERROR = 'Product request error'
+    PAYMENT_REQUEST_ERROR = 'Payment request error'
+    PAYMENT_CHECKOUT_REQUEST_FAIL = 'Payment checkout request failed'
+    PAYMENT_CHECKOUT_ID_FAIL = 'Payment checkout id creation failed'
+    UNRECOGNISED_PAYMENT_TYPE = 'Unrecognised payment type'
   end
 
   module ValidationErrors

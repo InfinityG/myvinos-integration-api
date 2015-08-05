@@ -3,7 +3,6 @@ require 'openssl'
 require 'webrick'
 require 'webrick/https'
 require 'logger'
-require 'redis'
 require 'mongo'
 require 'mongo_mapper'
 

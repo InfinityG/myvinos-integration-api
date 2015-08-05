@@ -1,11 +1,11 @@
-require './api/gateway/woo_gateway'
+require './api/gateways/product_gateway'
 require './api/constants/error_constants'
 require './api/mappers/product_mapper'
 require './api/repositories/cache_repository'
 
 class ProductService
 
-  def initialize(config_service = ConfigurationService, woo_gateway = WooGateway,
+  def initialize(config_service = ConfigurationService, woo_gateway = ProductGateway,
                  cache_repository = CacheRepository, mapper = ProductMapper)
     @config = config_service.new.get_config
     @woo_gateway = woo_gateway.new
@@ -28,7 +28,7 @@ class ProductService
 
       mapped_products
     else
-      raise ApiError, WOOCOMMERCE_REQUEST_ERROR
+      raise ApiError, PRODUCT_REQUEST_ERROR
     end
 
   end
