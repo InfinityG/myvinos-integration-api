@@ -1,6 +1,7 @@
 require 'mongo_mapper'
 require 'bson'
 require './api/models/user'
+require './api/models/address'
 
 class UserRepository
   include Mongo
@@ -24,7 +25,10 @@ class UserRepository
     user = get_by_username(username)
 
     if user != nil
-      #TOD: update the user
+      #TOD: complete addresses
+      user.first_name = first_name
+      user.last_name = last_name
+      user.email = email
       user.save
     else
       user = User.create(username: username, first_name: first_name, last_name: last_name,

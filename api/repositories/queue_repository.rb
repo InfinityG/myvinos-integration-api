@@ -8,8 +8,8 @@ class QueueRepository
   include BSON
   include MyVinos::Models
 
-  def create_queue_item(checkout_id)
-    QueueItem.create(:checkout_id => checkout_id,
+  def create_queue_item(order_id, checkout_id)
+    QueueItem.create(:order_id => order_id.to_s, :checkout_id => checkout_id,
                      :status => 'pending')
   end
 
@@ -18,7 +18,7 @@ class QueueRepository
   end
 
   def update_queue_item(queue_item_id, status)
-    item = QueueItem.find queue_item_id
+    item = QueueItem.find queue_item_id.to_s
 
     if item != nil
       item.status = status

@@ -4,13 +4,15 @@ module MyVinos
       include MongoMapper::EmbeddedDocument
 
       key :product_id, String
-      key :title, String
+      key :product_type, String
+      key :supplier, String
+      key :brand, String
+      key :price, String
+      key :currency, String
+      key :name, String
       key :description, String
-      key :farm, String
-      key :color, String
-      key :grapes, String
-      key :style, String
       key :image_url, String
+      key :tags, Hash
     end
   end
 end

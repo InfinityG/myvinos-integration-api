@@ -10,20 +10,25 @@ class QueueProcessorService
 
       queue_service = QueueService.new
       order_service = OrderService.new
+      rate_service = RateUtil.new
 
       while true
         begin
           pending_items = queue_service.get_pending_items
 
-          pending_items.each do |queue_item|
-            checkout_id = queue_item.checkout_id
-            queue_service.update_queue_item queue_item.id, 'complete' if order_service.get_checkout_status(checkout_id)
+          pending_items.each do |item|
+            status = order_service.get_checkout_status(item.checkout_id)
+            if status[:success]
+              queue_service.update_queue_item item.id, 'complete'
+              order_service.update_order_transaction item.order_id, status[:transaction_id], 'complete'
+            end
+            sleep 1.seconds
           end
         rescue Exception => e
           LOGGER.error "Error processing queue item! || Error: #{e}"
         end
 
-        sleep 5.0
+        sleep 5.seconds
       end
     }
   end

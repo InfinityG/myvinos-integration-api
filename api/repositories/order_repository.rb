@@ -21,16 +21,20 @@ class OrderRepository
                                   :currency => currency,
                                   :status => 'pending')
 
-    begin
       # create order record with transaction and products
-      result = Order.create(:type => type, :transaction => transaction, :products => products)
-    rescue Error => e
-      err = e.message
-    end
+      Order.create(:type => type, :transaction => transaction, :products => products)
   end
 
-  def update_vin_purchase_order_status(status)
+  def update_order_transaction_status(order_id, external_transaction_id, status)
+    order = Order.find(order_id.to_s)
 
+    if order != nil
+      order.transaction.status = status
+      order.transaction.external_transaction_id = external_transaction_id
+      order.save
+    else
+      raise "Order with id #{order_id} not found!"
+    end
   end
 
 end

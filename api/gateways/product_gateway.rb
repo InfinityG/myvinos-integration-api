@@ -15,5 +15,12 @@ class ProductGateway
     auth_header = @key_provider.get_product_api_auth_key
 
     @rest_util.execute_get(uri, auth_header)
+    end
+
+  def get_product(id)
+    uri= "#{@config[:product_api_uri]}/products/#{id}"
+    auth_header = @key_provider.get_product_api_auth_key
+
+    @rest_util.execute_get(uri, auth_header)
   end
 end

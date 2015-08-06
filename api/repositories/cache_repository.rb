@@ -13,14 +13,17 @@ class CacheRepository
     product_arr = []
 
     mapped_products.each do |product|
+
       product_arr << Product.new(:product_id => product[:product_id],
-                                 :title => product[:title],
+                                 :product_type => product[:product_type],
+                                 :supplier => product[:supplier],
+                                 :brand => product[:brand],
+                                 :price => product[:price],
+                                 :currency => product[:currency],
+                                 :name => product[:name],
                                  :description => product[:description],
-                                 :farm => product[:farm],
-                                 :color => product[:color],
-                                 :grapes => product[:grapes],
-                                 :style => product[:style],
-                                 :image_url => product[:image_url])
+                                 :image_url => product[:image_url],
+                                 :tags => product[:tags])
     end
 
     cache = Cache.first
@@ -49,6 +52,15 @@ class CacheRepository
     end
 
     nil
+  end
 
+  def get_product(id)
+    products = get_products
+
+    products.each do |product|
+      return product if product.product_id == id
+    end if products != nil
+
+    nil
   end
 end

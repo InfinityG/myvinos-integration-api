@@ -4,6 +4,7 @@ module MyVinos
       include MongoMapper::EmbeddedDocument
 
       key :type, String
+      key :external_transaction_id, String
       key :checkout_id, String
       key :amount, String
       key :currency, String

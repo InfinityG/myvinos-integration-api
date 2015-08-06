@@ -9,7 +9,7 @@ module MyVinos
       key :email, String
       key :balance, Integer
 
-      many :address, :class_name => 'MyVinos.Models.Address'
+      many :addresses, :class_name => 'MyVinos::Models::Address'
       many :orders, :class_name => 'MyVinos::Models::Order'
 
     end

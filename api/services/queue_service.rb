@@ -6,8 +6,8 @@ class QueueService
     @queue_repository = queue_repository.new
   end
 
-  def add_item_to_queue(checkout_id)
-    @queue_repository.create_queue_item checkout_id
+  def add_item_to_queue(order_id, checkout_id)
+    @queue_repository.create_queue_item order_id.to_s, checkout_id
   end
 
   def get_pending_items

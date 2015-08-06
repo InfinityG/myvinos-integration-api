@@ -12,6 +12,7 @@ require './api/routes/users'
 require './api/routes/products'
 require './api/routes/tokens'
 require './api/services/config_service'
+require './api/services/queue_processor_service'
 
 class ApiApp < Sinatra::Base
 
@@ -29,6 +30,10 @@ class ApiApp < Sinatra::Base
     register Sinatra::TokenRoutes
     register Sinatra::UserRoutes
     register Sinatra::ProductRoutes
+
+    puts 'Starting queue processor service...'
+    queue_service = QueueProcessorService.new
+    queue_service.start
   end
 
   #http://stackoverflow.com/questions/2362148/how-to-enable-ssl-for-a-standalone-sinatra-app
