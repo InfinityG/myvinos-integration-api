@@ -1,7 +1,7 @@
 require 'minitest'
 require 'minitest/autorun'
 
-require './api/gateways/product_gateway'
+require_relative '../../api/gateways/product_gateway'
 
 class ProductGatewayTests < MiniTest::Test
 end

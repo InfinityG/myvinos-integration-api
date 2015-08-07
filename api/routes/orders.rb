@@ -20,7 +20,7 @@ module Sinatra
         end
 
         begin
-          connection = OrderService.new.create(@current_user, data)
+          connection = OrderService.build.create_order(@current_user, data)
           status 201
           connection.to_json
         rescue ApiError => e
@@ -32,5 +32,5 @@ module Sinatra
     end
 
   end
-  register UserRoutes
+  register OrderRoutes
 end

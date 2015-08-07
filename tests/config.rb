@@ -1,0 +1,1 @@
+MYVINOS_API_URI = 'http://localhost:8005'

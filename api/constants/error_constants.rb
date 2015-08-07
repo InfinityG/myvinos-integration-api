@@ -10,9 +10,9 @@ module ErrorConstants
 
   module ValidationErrors
     NO_DATA_FOUND = 'No data found!'
+    NO_PRODUCTS_FOUND = 'No products found!'
     INVALID_USER_ID = 'Invalid user id'
     INVALID_TYPE = 'Invalid type'
-    INVALID_LINE_ITEMS = 'Invalid line items'
     INVALID_PRODUCT_ID = 'Invalid product id'
     INVALID_QUANTITY = 'Invalid product quantity'
   end

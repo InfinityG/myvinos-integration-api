@@ -10,6 +10,7 @@ require './api/routes/cors'
 require './api/routes/auth'
 require './api/routes/users'
 require './api/routes/products'
+require './api/routes/orders'
 require './api/routes/tokens'
 require './api/services/config_service'
 require './api/services/queue_processor_service'
@@ -30,6 +31,7 @@ class ApiApp < Sinatra::Base
     register Sinatra::TokenRoutes
     register Sinatra::UserRoutes
     register Sinatra::ProductRoutes
+    register Sinatra::OrderRoutes
 
     puts 'Starting queue processor service...'
     queue_service = QueueProcessorService.new

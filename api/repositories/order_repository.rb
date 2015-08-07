@@ -10,7 +10,7 @@ class OrderRepository
   include BSON
   include MyVinos::Models
 
-  def create_vin_purchase_order(checkout_id, amount, currency, products)
+  def create_vin_purchase_order(user_id, checkout_id, amount, currency, products)
 
     type = 'vin_purchase'
 
@@ -22,7 +22,7 @@ class OrderRepository
                                   :status => 'pending')
 
       # create order record with transaction and products
-      Order.create(:type => type, :transaction => transaction, :products => products)
+      Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
   end
 
   def update_order_transaction_status(order_id, external_transaction_id, status)
@@ -35,6 +35,8 @@ class OrderRepository
     else
       raise "Order with id #{order_id} not found!"
     end
+
+    order
   end
 
 end

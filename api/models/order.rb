@@ -4,6 +4,7 @@ module MyVinos
       include MongoMapper::Document
 
       key :type, String
+      key :user_id, String
       key :external_order_id, String
 
       one :transaction, :class_name => 'MyVinos::Models::Transaction'

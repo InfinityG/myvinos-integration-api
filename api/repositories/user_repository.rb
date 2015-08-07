@@ -21,7 +21,8 @@ class UserRepository
     User.first(:username => username)
   end
 
-  def save_or_update_user(username, first_name = nil, last_name = nil, email = nil, billing_address = nil, shipping_address = nil)
+  def save_or_update_user(username, first_name = '', last_name = '', email = '', balance = 0,
+                          billing_address = nil, shipping_address = nil)
     user = get_by_username(username)
 
     if user != nil
@@ -31,8 +32,12 @@ class UserRepository
       user.email = email
       user.save
     else
+      addresses = []
+      addresses << billing_address if billing_address != nil
+      addresses << shipping_address if shipping_address != nil
+
       user = User.create(username: username, first_name: first_name, last_name: last_name,
-                         email: email, billing_address: billing_address, shipping_address: shipping_address)
+                         email: email, balance: balance, addresses: addresses)
     end
 
     user

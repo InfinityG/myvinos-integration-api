@@ -33,8 +33,10 @@ class CacheRepository
       cache.products_expiry = expires
       cache.save
     else
-      Cache.create(:products => product_arr, :products_expiry => expires)
+      cache = Cache.create(:products => product_arr, :products_expiry => expires)
     end
+
+    cache.products
 
   end
 
@@ -54,11 +56,11 @@ class CacheRepository
     nil
   end
 
-  def get_product(id)
+  def get_product(product_id)
     products = get_products
 
     products.each do |product|
-      return product if product.product_id == id
+      return product if product.product_id == product_id
     end if products != nil
 
     nil

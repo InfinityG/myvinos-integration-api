@@ -1,7 +1,7 @@
 require 'minitest'
 require 'minitest/autorun'
 
-require './api/gateways/payment_gateway'
+require_relative '../../api/gateways/payment_gateway'
 
 class PaymentGatewayTests < MiniTest::Test
 

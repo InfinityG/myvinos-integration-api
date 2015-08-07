@@ -24,7 +24,7 @@ class ProductService
       mapped_products = @mapper.map_products result[:products]
       timeout = (Time.now + @config[:cache_timeout]).to_i
 
-      @cache_repository.save_products mapped_products, timeout
+      @cache_repository.save_products(mapped_products, timeout).products
 
       # mapped_products
     else
@@ -33,11 +33,11 @@ class ProductService
 
   end
 
-  def get_product(id)
-    product = @cache_repository.get_product(id)
+  def get_product(product_id)
+    product = @cache_repository.get_product(product_id)
     return product if product != nil
 
-    response = @product_gateway.get_product(id)
+    response = @product_gateway.get_product(product_id)
 
     if response.response_code == 200
       result = JSON.parse(response.response_body, :symbolize_names => true)

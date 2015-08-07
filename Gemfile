@@ -14,6 +14,7 @@ gem 'ig-identity-rp-validator', '>=0.0.3'
 
 group :test, :development do
   gem 'minitest'
+  # gem 'mocha'
   gem 'cucumber'
   gem 'cucumber-sinatra'
 end

@@ -30,7 +30,7 @@ class UserService
   end
 
   def get_by_id(user_id)
-    @user_repository.get_user user_id
+    @user_repository.get_user user_id.to_s
   end
 
   def get_by_username(username)
@@ -40,6 +40,12 @@ class UserService
   def update(username, first_name, last_name, password)
     #TODO: update the DB - username is the identifier and cannot be changed
     raise 'User update not implemented'
+    end
+
+  def update_balance(user_id, amount)
+    user = get_by_id user_id
+    user.balance += amount
+    user.save
   end
 
   def delete(username)
