@@ -3,6 +3,8 @@ module MyVinos
     class User
       include MongoMapper::Document
 
+      key :external_id, String
+      key :third_party_id, String
       key :username, String, :required => true, :key => true
       key :first_name, String
       key :last_name, String

@@ -18,19 +18,13 @@ class ProductService
     return products if (products != nil && products.length > 0)
 
     response = @product_gateway.get_all_products
+    raise ApiError, PRODUCT_REQUEST_ERROR if response.response_code != 200
 
-    if response.response_code == 200
-      result = JSON.parse(response.response_body, :symbolize_names => true)
-      mapped_products = @mapper.map_products result[:products]
-      timeout = (Time.now + @config[:cache_timeout]).to_i
+    result = JSON.parse(response.response_body, :symbolize_names => true)
+    mapped_products = @mapper.map_products result[:products]
+    timeout = (Time.now + @config[:cache_timeout]).to_i
 
-      @cache_repository.save_products(mapped_products, timeout).products
-
-      # mapped_products
-    else
-      raise ApiError, PRODUCT_REQUEST_ERROR
-    end
-
+    @cache_repository.save_products(mapped_products, timeout).products
   end
 
   def get_product(product_id)
@@ -39,13 +33,10 @@ class ProductService
 
     response = @product_gateway.get_product(product_id)
 
-    if response.response_code == 200
-      result = JSON.parse(response.response_body, :symbolize_names => true)
-      @mapper.map_product result[:product]
-    else
-      raise ApiError, PRODUCT_REQUEST_ERROR
-    end
+    raise ApiError, PRODUCT_REQUEST_ERROR if response.response_code != 200
+    result = JSON.parse(response.response_body, :symbolize_names => true)
 
+    @mapper.map_product result[:product]
   end
 
 end

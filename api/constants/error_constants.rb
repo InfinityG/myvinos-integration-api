@@ -2,10 +2,20 @@ module ErrorConstants
 
   module ApiErrors
     PRODUCT_REQUEST_ERROR = 'Product request error'
-    PAYMENT_REQUEST_ERROR = 'Payment request error'
-    PAYMENT_CHECKOUT_REQUEST_FAIL = 'Payment checkout request failed'
-    PAYMENT_CHECKOUT_ID_FAIL = 'Payment checkout id creation failed'
+    THIRD_PARTY_USER_CREATION_ERROR = 'User could not be created on 3rd party'
+    THIRD_PARTY_USER_REQUEST_ERROR = 'User could not be retrieved from 3rd party'
+    THIRD_PARTY_ORDER_CREATION_ERROR = 'Order could not be created on 3rd party'
+    THIRD_PARTY_PRODUCT_REQUEST_ERROR = 'Products could not be retrieved from 3rd party'
+    THIRD_PARTY_DELIVERY_REQUEST_ERROR = 'Delivery request error'
+    THIRD_PARTY_PAYMENT_REQUEST_ERROR = 'Payment request error'
+    THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL = 'Payment checkout id request failed'
+    THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL = 'Payment checkout status request failed'
     UNRECOGNISED_PAYMENT_TYPE = 'Unrecognised payment type'
+    INSUFFICIENT_VINOS = 'Insufficient VINOs for purchase'
+    INVALID_PRODUCT = 'Invalid product selected'
+    PRODUCT_NOT_IN_STOCK = 'Product is not in stock'
+    # ORDER_CREATION_ERROR = 'Order creation error on third party'
+
   end
 
   module ValidationErrors
@@ -15,5 +25,10 @@ module ErrorConstants
     INVALID_TYPE = 'Invalid type'
     INVALID_PRODUCT_ID = 'Invalid product id'
     INVALID_QUANTITY = 'Invalid product quantity'
+    INVALID_EXTERNAL_USER_ID = 'Invalid external user id'
+    INVALID_EMAIL = 'Invalid user email'
+    INVALID_FIRST_NAME = 'Invalid user first name'
+    INVALID_LAST_NAME = 'Invalid user last name'
+    INVALID_USERNAME = 'Invalid username'
   end
 end

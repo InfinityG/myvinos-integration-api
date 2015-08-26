@@ -1,8 +1,12 @@
 require './api/utils/rest_util'
 require './api/services/config_service'
+require './api/constants/error_constants'
+require './api/errors/api_error'
 require 'json'
 
 class PaymentGateway
+  include ErrorConstants::ApiErrors
+
   def initialize(rest_util = RestUtil, config_service = ConfigurationService)
     @rest_util = rest_util.new
     @config = config_service.new.get_config
@@ -41,7 +45,13 @@ class PaymentGateway
     #     "id": "942ABEAAD1F6C7C3E5A72E4FA4FB66D3.sbg-vm-tx02"
     # }
 
-    @rest_util.execute_form_post(uri, nil, payload)
+    begin
+      response =@rest_util.execute_form_post(uri, nil, payload)
+      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL} | Response code: #{response.response_code}" if response.response_code != 200
+      return response
+    rescue RestClient::Exception => e
+      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+    end
   end
 
   def get_checkout_status(checkout_id)
@@ -87,6 +97,12 @@ class PaymentGateway
     #     "ndc":"5f5c0f6f4bd444a8b6ac094d4bf6d42e"
     # }
 
-    @rest_util.execute_get(uri, nil)
+    begin
+      response = @rest_util.execute_get(uri, nil)
+      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL} | Response code: #{response.response_code}" if response.response_code != 200
+      return response
+    rescue RestClient::Exception => e
+      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+    end
   end
 end

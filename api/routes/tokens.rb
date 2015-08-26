@@ -8,22 +8,27 @@ module Sinatra
 
       #create new token: login
       app.post '/tokens' do
+
         data = JSON.parse(request.body.read, :symbolize_names => true)
+        token_service = TokenService.new
 
-        auth = data[:auth]
-        iv = data[:iv]
+        validated_auth = token_service.validate_auth(data[:auth], data[:iv])
+        halt 401, 'Unauthorized!' if validated_auth == nil
 
-        if auth.to_s != '' && iv.to_s != ''
-          token = TokenService.new.create_token auth, iv
+        # validate the fields of the auth token
+        begin
+          ApiValidator.new.validate_user_details validated_auth
+        rescue ValidationError => e
+          status 400 # bad request
+          return e.message
+        end
 
-          if token == nil
-            halt 401, 'Unauthorized!'
-          end
-
-          token.to_json
-
-        else
-          halt 401, 'Unauthorized!'
+        begin
+          token = token_service.create_token validated_auth
+          return token.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
         end
       end
 

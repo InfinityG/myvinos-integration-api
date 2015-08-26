@@ -21,27 +21,37 @@ class UserRepository
     User.first(:username => username)
   end
 
-  def save_or_update_user(username, first_name = '', last_name = '', email = '', balance = 0,
-                          billing_address = nil, shipping_address = nil)
-    user = get_by_username(username)
+  # only create the user if it doesn't already exist
+  def create(external_id, third_party_id, username, first_name = '', last_name = '', email = '')
 
-    if user != nil
-      #TOD: complete addresses
-      user.first_name = first_name
-      user.last_name = last_name
-      user.email = email
-      user.save
-    else
+    if get_by_username username == nil
       addresses = []
-      addresses << billing_address if billing_address != nil
-      addresses << shipping_address if shipping_address != nil
-
-      user = User.create(username: username, first_name: first_name, last_name: last_name,
-                         email: email, balance: balance, addresses: addresses)
+      User.create(external_id: external_id, third_party_id: third_party_id,
+                  username: username, first_name: first_name, last_name: last_name,
+                  email: email, balance: 0, addresses: addresses)
     end
-
-    user
   end
+
+  # def update(username, first_name = '', last_name = '', email = '', balance = 0,
+  #                         billing_address = nil, shipping_address = nil)
+  #
+  #   # user will always exist as the token creation process will auto-create the user
+  #   user = get_by_username(username)
+  #
+  #   # # user already exists
+  #   # user.first_name = first_name
+  #   # user.last_name = last_name
+  #   # user.email = email
+  #   # user.save
+  #
+  #
+  #   addresses = []
+  #   addresses << billing_address if billing_address != nil
+  #   addresses << shipping_address if shipping_address != nil
+  #
+  #   User.create(username: username, first_name: first_name, last_name: last_name,
+  #                      email: email, balance: balance, addresses: addresses)
+  # end
 
   def delete_user(user_id)
     User.destroy(user_id)

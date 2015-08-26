@@ -9,8 +9,9 @@ class ProductMapper
   def map_products(products)
     result = []
 
+    # only map in-stock products
     products.each do |product|
-      result << map_product(product)
+      result << map_product(product) if product[:in_stock]
     end
 
     result
