@@ -25,10 +25,11 @@ module Sinatra
 
         begin
           token = token_service.create_token validated_auth
-          return token.to_json
+          status 201
+          token.to_json
         rescue ApiError => e
           status 500
-          return e.message.to_json
+          e.message.to_json
         end
       end
 

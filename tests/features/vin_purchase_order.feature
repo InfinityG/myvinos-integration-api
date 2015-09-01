@@ -5,5 +5,5 @@ Feature: Create VINOs purchase order
     And I have an authentication token
     And I have selected a VINOs top-up product
     When I send the order request to the API
-    Then the API should respond with a 200 response code
+    Then the API should respond with a 201 response code
     And the response should contain a checkout id

@@ -1,6 +1,7 @@
 module ErrorConstants
 
   module ApiErrors
+    # Error numbers!
     PRODUCT_REQUEST_ERROR = 'Product request error'
     THIRD_PARTY_USER_CREATION_ERROR = 'User could not be created on 3rd party'
     THIRD_PARTY_USER_REQUEST_ERROR = 'User could not be retrieved from 3rd party'

@@ -24,11 +24,10 @@ class UserRepository
   # only create the user if it doesn't already exist
   def create(external_id, third_party_id, username, first_name = '', last_name = '', email = '')
 
-    if get_by_username username == nil
-      addresses = []
+    if get_by_username(username) == nil
       User.create(external_id: external_id, third_party_id: third_party_id,
                   username: username, first_name: first_name, last_name: last_name,
-                  email: email, balance: 0, addresses: addresses)
+                  email: email, balance: 0)
     end
   end
 

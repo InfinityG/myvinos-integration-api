@@ -21,7 +21,9 @@ class ProductGateway
 
     begin
       response = @rest_util.execute_get(uri, auth_header)
-      raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}" if response.response_code != 200
+      unless response.response_code.to_s.start_with?('2')
+        raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+      end
       return response
     rescue RestClient::Exception => e
       raise ApiError, "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
@@ -36,7 +38,9 @@ class ProductGateway
 
     begin
       response = @rest_util.execute_get(uri, auth_header)
-      raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}" if response.response_code != 200
+      unless response.response_code.to_s.start_with?('2')
+        raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+      end
       return response
     rescue RestClient::Exception => e
       raise ApiError, "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
@@ -49,7 +53,9 @@ class ProductGateway
 
     begin
       response = @rest_util.execute_get(uri, auth_header)
-      raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}" if response.response_code != 200
+      unless response.response_code.to_s.start_with?('2')
+        raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+      end
       return response
     rescue RestClient::Exception => e
       raise ApiError, "#{THIRD_PARTY_USER_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
@@ -71,7 +77,9 @@ class ProductGateway
 
     begin
       response =  @rest_util.execute_post(uri, auth_header, data.to_json)
-      raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}" if response.response_code != 200
+      unless response.response_code.to_s.start_with?('2')
+        raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+      end
       return response
     rescue RestClient::Exception => e
       raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"

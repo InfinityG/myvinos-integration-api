@@ -24,7 +24,7 @@ class ProductService
     mapped_products = @mapper.map_products result[:products]
     timeout = (Time.now + @config[:cache_timeout]).to_i
 
-    @cache_repository.save_products(mapped_products, timeout).products
+    @cache_repository.save_products(mapped_products, timeout)
   end
 
   def get_product(product_id)

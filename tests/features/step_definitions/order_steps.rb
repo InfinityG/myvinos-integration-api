@@ -12,9 +12,9 @@ Given(/^I have an authentication token$/) do
   # }.to_json
 
   idio_token = {
-      :token => '2c6603d6-f0dd-45da-817a-7d5b36f4ebad',
-      :auth => "I2ytNmje8podolbJhGSZ4VBnlmjJifylLqP80Wk4JBGXqol+HXXc+LdxnGG+\n+1OG0j4jAz5WyY9SHXHKKPrZeDacnmmWHGAuHyaEptwMI1vLFW/KJEGddBqc\nLmtceDMOqen65k+nIoPhE68j+EphSfvPWlTFW6z/2PHmIivbzqGSa10owF6X\nyBy7C/Sk3tCe2Mp4sl/AcfL/ep4xIbfOya5ExAreSaCAD3qPbP9qmffKfvNy\ne1gxqIaKAtpVpzBc523f+0TmEuOPm7cjlWiZMUOUdWfjrC0mBvxGRnE+CDsE\nYptlu3so/IRo9j6Kj2xaA1QYA/PGXaYzsv/I6GuveR0f6DWrFW00ke4GosQr\nHt+RGHkt4kpE+fU2knWFgaQhqAPJzN1Cx3oJyyScetBbPsx27K+8uXR6tdP3\n7Di5kb8ZPMpmTFTZwsCZ9IU/rorK0yNtpxswn4fpyXIHshM9FMx6DnydqCUV\n+1dkAl6wpp29e1LCStQUvPOgKvStxPrDwtM9e0T4zqVKNxnmv1oV1N8myaZJ\nQnNMqctORf5Z20zlvEA1TfEb9QC3b6vxWw9iY4BQ8UfiuCc/UmbCyRIfg5be\n5fX3GAJJWGBwYSvN0FutQqjec/MK+HjyYlZmuLTc+5mBQxRtSBYWbSgQ2Sj3\nCCipHWkL1SwfVVkVDacDPRHopqLOrpcMOUVllXh00K08fKQhuktyeZDhmGb3\nISbaCn1+2Gfq4STjp5Vhdnnsgsc=\n",
-      :iv => "Cql44iW+ikFxSZyPlK9C7Q==\n"
+      :token => "b567f702-b698-4332-8dc3-d1a8ad18f10b",
+      :auth => "WPRLPPhIXUP0QGxjdWnUgd3VaqaN91zWWmSr+KVBn4MX28mky/Md5iCOdQaL\ndPQ+YrR8O3Ke0jLwnX8/lmCaE3YeLPi0SWhGxANuK/Afd8C0GxnKumkeISc4\nIDC1fDbU/7eUpzUgbAukWsW94IMzA0QeNuno7KTu3Fb0pLMfXcXeXXM8DHdX\noq786WklW/+EGt0rra/I40ap51bJWVaYzrhJYgijUzul3a12f8GMcIeI0xI9\nmeBZyxcuZlEF2jUb5n4IrZ6Bm8TvE/PS5WBaKu3anHVTguv00Ie5TAEugBM+\n5j99h4QGjIiqgaUpP8zhuBd9beIqWCT7+CNwKjFEjKiokiJab4ixb3dNvl0N\nRMH+KYIqjz8MqPEuWwFHcDnzfhYo4ou5AVIibnoPqSNtDpO64yxGcEHHZPUJ\nrOv5FZQkfPv0tlcrWvfWArpWAxadCrlDQukbqwBPnvM0tJU3snPj4aZFteWx\nnONlb6kePl0ryi94WJzjiAF2/SCt25t8kqIn7GcdPQ3clDFTMPLOtz/Is/c9\nz1IIgC+Z53NuAj71RBlBPixvQBUwgjEA88wuExa7Xr+XYUxNmZv1keKzDcFC\nzxwHr5L0+O350BDC14hsK3KCt8IKw2ukYrKXp+RNtrzGpTZMVyH/W3aBfx95\nQhKfAdwkzrE1JVBMOnjNRDd0Div7z/yv7LPyVELTqHSvOJPS4UXNQQTSgPLQ\nclZD+8B8n9eBgmuBea1Oad2fJ5Egu/GJ1Bi5JzR6ov0oSmvY\n",
+      :iv => "PYFzotJAkrxFjUk1s67Hyg==\n"
   }.to_json
 
   puts 'Creating login token'
@@ -22,7 +22,7 @@ Given(/^I have an authentication token$/) do
   puts "Login result: #{response.response_body}"
   puts "Response code: #{response.response_code}"
 
-  assert response.response_code == 200
+  assert response.response_code == 201
 
   result = JSON.parse(response.response_body, :symbolize_names => true)
   @auth_token = result[:token]
@@ -38,7 +38,7 @@ And(/^I have selected a VINOs top\-up product$/) do
 
   @selected_product = nil
   products.each do |item|
-      if item[:product_type].to_s.downcase == 'vinos'
+      if item[:product_type].to_s.downcase == 'top-up'
         @selected_product = item
         break
       end
@@ -65,7 +65,7 @@ When(/^I send the order request to the API$/) do
 end
 
 Then(/^the API should respond with a (\d+) response code$/) do |arg|
-  assert @order_response.response_code == arg
+  assert @order_response.response_code.to_s == arg
 end
 
 And(/^the response should contain a checkout id$/) do

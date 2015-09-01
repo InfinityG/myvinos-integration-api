@@ -18,38 +18,50 @@ class ProductMapper
   end
 
   def map_product(product)
-    product_type = nil
     currency = nil
-    brand = nil
+    producer = nil
     color = nil
-    grapes = nil
-    style = nil
+    grapes = []
+    style = []
+    mood = []
 
-    product[:categories].each do |category|
-      case category.to_s.downcase
-        when 'red'
-          product_type = 'wine'
-          currency = @config[:default_crypto_currency]
-          break
-        when 'white'
-          product_type = 'wine'
-          currency = @config[:default_crypto_currency]
-          break
-        when 'buy'
-          product_type = 'vinos'
-          currency = @config[:default_fiat_currency]
-          break
-        else
-          product_type = category
-          currency = @config[:default_crypto_currency]
-      end
+    case product[:type].to_s.downcase
+      when 'simple'
+        product_type = 'Wine'
+        currency = @config[:default_crypto_currency]
+      when 'deposit'
+        product_type = 'Top-up'
+        currency = @config[:default_fiat_currency]
+      else
+        product_type = product[:type]
     end
 
     product[:attributes].each do |attribute|
-      brand = attribute[:options][0] if attribute[:name] == 'Producer' if attribute[:options] != nil && attribute[:options].length > 0
-      color = attribute[:options][0] if attribute[:name] == 'Wine' if attribute[:options] != nil && attribute[:options].length > 0
-      grapes = attribute[:options][0] if attribute[:name] == 'Grapes' if attribute[:options] != nil && attribute[:options].length > 0
-      style = attribute[:options][0] if attribute[:name] == 'Style' if attribute[:options] != nil && attribute[:options].length > 0
+
+      if attribute[:options] != nil && attribute[:options].length > 0
+
+        producer = attribute[:options][0] if attribute[:name].to_s.downcase == 'producer'
+        color = attribute[:options][0] if attribute[:name].to_s.downcase == 'wine'
+
+        if attribute[:name].to_s.downcase == 'grapes'
+          attribute[:options].each do |option|
+            grapes << option
+          end
+        end
+
+        if attribute[:name].to_s.downcase == 'style'
+          attribute[:options].each do |option|
+            style << option
+          end
+        end
+
+        if attribute[:name].to_s.downcase == 'mood'
+          attribute[:options].each do |option|
+            mood << option
+          end
+        end
+
+      end
     end
 
     # image
@@ -78,8 +90,9 @@ class ProductMapper
     {
         :product_id => product[:id],
         :product_type => product_type,
-        :supplier => nil,
-        :brand => brand,
+        :supplier => 'MyVinos',
+        :producer => producer,
+        # :brand => brand,
         :price => product[:price],
         :currency => currency,
         :name => product[:title],
@@ -89,7 +102,8 @@ class ProductMapper
 
             :color => color,
             :grapes => grapes,
-            :style => style
+            :style => style,
+            :mood => mood
         }
     }
   end

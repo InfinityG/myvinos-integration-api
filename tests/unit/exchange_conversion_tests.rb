@@ -1,7 +1,7 @@
 require 'minitest'
 require 'minitest/autorun'
 
-require_relative '../../api/utils/rate_util'
+require './api/utils/rate_util'
 
 class ExchangeConversionTests < MiniTest::Test
 

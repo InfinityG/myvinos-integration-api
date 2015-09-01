@@ -33,12 +33,13 @@ class TokenService
     user = @user_service.create_or_update(validated_auth)
 
     uuid = @hash_service.generate_uuid
-    token = save_token user.id, external_id, uuid
+    token = save_token user.id, user.external_id, uuid
 
     # log
     log(user.id, 'Token', token.id, 'create_token', 'Create login token')
 
-    {:user_id => user.id, :external_id => external_id, :token => uuid}
+    # {:user_id => user.id, :external_id => user.external_id, :token => uuid}
+    {:token => uuid}
 
   end
 

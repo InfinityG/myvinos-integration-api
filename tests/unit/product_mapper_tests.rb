@@ -2,7 +2,7 @@ require 'minitest'
 require 'minitest/autorun'
 require 'json'
 
-require_relative '../../api/mappers/product_mapper'
+require './api/mappers/product_mapper'
 
 class ProductMapperTests < MiniTest::Test
 

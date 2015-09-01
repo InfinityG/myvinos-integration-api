@@ -14,9 +14,15 @@ module Sinatra
         # index = params[:index].to_i
         # count = params[:count].to_i
 
-        product_service = ProductService.new
-        products = product_service.get_products
-        return products.to_json
+        begin
+          product_service = ProductService.new
+          products = product_service.get_products
+          return products.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
+        end
+
       end
 
       #get user details
