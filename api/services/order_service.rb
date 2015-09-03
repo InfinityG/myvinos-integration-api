@@ -41,6 +41,10 @@ class OrderService
     @delivery_service = delivery_service
   end
 
+  def get_orders(user)
+    @order_repository.get_orders(user.id.to_s)
+  end
+
   def create_order(user, data)
     type = data[:type]
 
@@ -109,48 +113,75 @@ class OrderService
 
   def create_vin_redemption_order(data, user)
 
-    current_balance = user.balance
-    running_total = 0
-    products_arr = []
-    detailed_products_arr = []
-    location = data[:location]
+    parsed_products = parse_products(data, user.balance)
+    local_order = create_local_order(user, parsed_products, data[:location])
 
-    data[:products].each do |product|
-      cached_product = @product_service.get_product product.id
-      raise ApiError, INVALID_PRODUCT if cached_product == nil
+    # these operations all update fields on the local_order (by reference)
+    create_third_party_order(local_order, user, parsed_products[:order_products])
+    create_delivery(local_order, user)
+    update_third_party_order_status local_order
 
-      price = cached_product.price.to_i
-      running_total += price
-      raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
-
-      detailed_products_arr << cached_product
-      products_arr << {:product_id => product.id, :quantity => product.quantity}
-    end
-
-    third_party_order = send_order_request(products_arr, user)
-
-    local_order = @order_repository.create_vin_redemption_order(user.id.to_s,
-                                                                third_party_order.id.to_s,
-                                                                running_total,
-                                                                @config[:default_crypto_currency],
-                                                                detailed_products_arr,
-                                                                location)
-
-    balance = @user_service.update_balance user.id.to_s, -running_total
-
-    delivery = send_delivery_request user, local_order
+    @order_repository.update_order local_order
+    balance = update_balance user, parsed_products
 
     {
         :id => local_order.id.to_s,
-        :status => local_order.transaction.status,
+        :status => local_order.status,
         :delivery_details => {
-            :distance_estimate => delivery[:distance_estimate],
-            :time_estimate => delivery[:time_estimate],
-            :message => delivery[:message]
+            :status => local_order.delivery.status,
+            :distance_estimate => local_order.delivery.distance_estimate,
+            :time_estimate => local_order.delivery.time_estimate
         },
         :balance => balance
     }
 
+  end
+
+  def create_local_order(user, parsed_products, location)
+    @order_repository.create_vin_redemption_order(user.id.to_s,
+                                                  parsed_products[:total],
+                                                  @config[:default_crypto_currency],
+                                                  parsed_products[:detailed_products],
+                                                  location)
+  end
+
+  def create_third_party_order(local_order, user, parsed_products)
+    begin
+      third_party_order = send_order_create_request(user, parsed_products[:order_products])
+      local_order.external_order_id = third_party_order[:id]
+    rescue ApiError
+      local_order.status = 'third party order creation failed'
+    end
+  end
+
+  def create_delivery(local_order, user)
+    begin
+      delivery = send_delivery_request user, local_order
+      local_order.delivery.status = 'complete'
+      local_order.delivery.external_id = delivery[:id]
+      local_order.delivery.time_estimate = delivery[:time_estimate]
+      local_order.delivery.distance_estimate = delivery[:distance_estimate]
+    rescue ApiError
+      local_order.status = 'third party delivery creation failed'
+      local_order.delivery.status = 'failed'
+    end
+  end
+
+  def update_third_party_order_status(local_order)
+    # update the order status on the 3rd party
+    begin
+      send_order_update_request local_order.external_order_id, 'complete'
+      local_order.status = 'complete'
+      local_order.transaction.status = 'complete'
+    rescue ApiError
+      # @order_repository.update_order_status local_order.id, 'third party order update failed'
+      local_order.status = 'third party order update failed'
+      local_order.transaction.status = 'complete'
+    end
+  end
+
+  def update_balance(user, parsed_products)
+    @user_service.update_balance user.id.to_s, -parsed_products[:total]
   end
 
   ###########
@@ -170,6 +201,26 @@ class OrderService
     checkout_id
   end
 
+  def parse_products(data, current_balance)
+    running_total = 0
+    detailed_products_arr = []
+    order_products_arr = []
+
+    data[:products].each do |product|
+      cached_product = @product_service.get_product product.id
+      raise ApiError, INVALID_PRODUCT if cached_product == nil
+
+      price = cached_product.price.to_i
+      running_total += price
+      raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
+
+      detailed_products_arr << cached_product
+      order_products_arr << {:product_id => product.id, :quantity => product.quantity}
+    end
+
+    {:detailed_products => detailed_products_arr, :order_products => order_products_arr, :total => running_total}
+  end
+
   def send_checkout_id_request(amount)
     response = @payment_gateway.send_checkout_request('DB', amount, @config[:default_fiat_currency])
     JSON.parse(response.response_body, :symbolize_names => true)
@@ -180,8 +231,13 @@ class OrderService
     JSON.parse(response.response_body, :symbolize_names => true)
   end
 
-  def send_order_request(products_arr, user)
+  def send_order_create_request(user, products_arr)
     order_response = @product_gateway.create_order user, products_arr
+    JSON.parse(order_response.response_body, :symbolize_names => true)
+  end
+
+  def send_order_update_request(third_party_order_id, status)
+    order_response = @product_gateway.update_order_status third_party_order_id, status
     JSON.parse(order_response.response_body, :symbolize_names => true)
   end
 

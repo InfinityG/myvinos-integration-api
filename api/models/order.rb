@@ -6,6 +6,7 @@ module MyVinos
       key :type, String
       key :user_id, String
       key :external_order_id, String
+      key :status, String
 
       one :transaction, :class_name => 'MyVinos::Models::Transaction'
       one :delivery, :allow_nil => true, :class_name => 'MyVinos::Models::Delivery'

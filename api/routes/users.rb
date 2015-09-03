@@ -9,21 +9,33 @@ module Sinatra
     def self.registered(app)
 
       #get user details
-      app.get '/users/:user_id' do
+      app.get '/users/:username' do
         content_type :json
 
-        user_id = params[:user_id]
-        user_service = UserService.new
-        user = user_service.get_by_id user_id
-        user.to_json
+        begin
+          username = params[:username]
+          user_service = UserService.new
+          user = user_service.get_by_username(username, @current_user)
+          user.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
         end
+
+      end
 
       app.get '/users' do
         content_type :json
 
-        user_service = UserService.new
-        user = user_service.get_all
-        user.to_json
+        begin
+          user_service = UserService.new
+          user = user_service.get_all
+          user.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
+        end
+
       end
 
     end

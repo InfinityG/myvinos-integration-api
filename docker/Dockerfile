@@ -57,7 +57,7 @@ WORKDIR /home/myvinos-integration-api
 EXPOSE 8005
 
 # CMD rackup
-CMD mongod --fork --logpath /var/log/mongodb.log && rackup -E test
+CMD ["/bin/bash"]
 
 # To build: sudo docker build -t infinityg/myvinos-integration-api:v1 .
 # To run: sudo docker run -it --rm infinityg/myvinos-integration-api:v1

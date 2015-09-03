@@ -76,7 +76,7 @@ class ProductGateway
     auth_header = @key_provider.get_product_api_auth_key
 
     begin
-      response =  @rest_util.execute_post(uri, auth_header, data.to_json)
+      response = @rest_util.execute_post(uri, auth_header, data.to_json)
       unless response.response_code.to_s.start_with?('2')
         raise ApiError, "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
       end
@@ -105,7 +105,8 @@ class ProductGateway
                     :method_title => 'On-Demand Mobile Wine Steward',
                     :total => 0
                 }
-            ]
+            ],
+            :status => 'processing'
         }
     }
 
@@ -116,6 +117,25 @@ class ProductGateway
       return @rest_util.execute_post(uri, auth_header, data.to_json)
     rescue RestClient::Exception => e
       raise ApiError, "#{THIRD_PARTY_ORDER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"
+    end
+
+  end
+
+  def update_order_status(order_id, status)
+
+    data = {
+        :order => {
+            :status => status
+        }
+    }
+
+    uri= "#{@config[:product_api_uri]}/orders/#{order_id}"
+    auth_header = @key_provider.get_product_api_auth_key
+
+    begin
+      return @rest_util.execute_post(uri, auth_header, data.to_json)
+    rescue RestClient::Exception => e
+      raise ApiError, "#{THIRD_PARTY_ORDER_UPDATE_ERROR}: #{e.http_code} | #{e.http_body}"
     end
 
   end

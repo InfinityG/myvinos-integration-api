@@ -23,7 +23,7 @@ class ApiApp < Sinatra::Base
     puts 'Setting up database...'
     MongoMapper.connection = Mongo::MongoClient.new(config[:mongo_host], config[:mongo_port])
     MongoMapper.database = config[:mongo_db]
-    MongoMapper.database.authenticate(config[:mongo_db_user], config[:mongo_db_password]) if config[:mongo_host] != 'localhost'
+    # MongoMapper.database.authenticate(config[:mongo_db_user], config[:mongo_db_password]) if config[:mongo_host] != 'localhost'
 
     puts 'Setting up routes...'
     register Sinatra::CorsRoutes

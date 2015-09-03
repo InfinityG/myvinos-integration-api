@@ -20,15 +20,25 @@ module Sinatra
         end
 
         begin
-          connection = OrderService.build.create_order(@current_user, data)
+          order = OrderService.build.create_order(@current_user, data)
           status 201
-          connection.to_json
+          order.to_json
         rescue ApiError => e
           status 500
           return e.message.to_json
         end
       end
 
+      app.get '/orders' do
+        begin
+          orders = OrderService.build.get_orders(@current_user)
+          status 201
+          orders.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
+        end
+      end
     end
 
   end

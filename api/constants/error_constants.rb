@@ -6,6 +6,7 @@ module ErrorConstants
     THIRD_PARTY_USER_CREATION_ERROR = 'User could not be created on 3rd party'
     THIRD_PARTY_USER_REQUEST_ERROR = 'User could not be retrieved from 3rd party'
     THIRD_PARTY_ORDER_CREATION_ERROR = 'Order could not be created on 3rd party'
+    THIRD_PARTY_ORDER_UPDATE_ERROR = 'Order status could not be updated on 3rd party'
     THIRD_PARTY_PRODUCT_REQUEST_ERROR = 'Products could not be retrieved from 3rd party'
     THIRD_PARTY_DELIVERY_REQUEST_ERROR = 'Delivery request error'
     THIRD_PARTY_PAYMENT_REQUEST_ERROR = 'Payment request error'
@@ -15,6 +16,7 @@ module ErrorConstants
     INSUFFICIENT_VINOS = 'Insufficient VINOs for purchase'
     INVALID_PRODUCT = 'Invalid product selected'
     PRODUCT_NOT_IN_STOCK = 'Product is not in stock'
+    INVALID_USERNAME = 'Invalid username'
     # ORDER_CREATION_ERROR = 'Order creation error on third party'
 
   end
