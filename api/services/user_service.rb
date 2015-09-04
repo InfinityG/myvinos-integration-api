@@ -45,9 +45,11 @@ class UserService
     @user_repository.get_user user_id.to_s
   end
 
-  def get_by_username(username, user)
-    raise ApiError, INVALID_USERNAME if user.username != username
-    @user_repository.get_by_username username
+  def get_by_username(username, user = nil)
+    result = @user_repository.get_by_username username
+    raise ApiError, INVALID_USERNAME if result.username != username if user != nil
+
+    result
   end
 
   def update(username, first_name, last_name, password)

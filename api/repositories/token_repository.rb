@@ -20,6 +20,6 @@ class TokenRepository
   end
 
   def delete_token(uuid)
-    Token.destroy(:uuid => uuid)
+    Token.destroy_all(:uuid => uuid)
   end
 end
