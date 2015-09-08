@@ -151,6 +151,7 @@ class OrderService
       local_order.external_order_id = third_party_order[:id]
     rescue ApiError
       local_order.status = 'third party order creation failed'
+      raise ApiError, THIRD_PARTY_ORDER_CREATION_ERROR
     end
   end
 

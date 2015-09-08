@@ -1,0 +1,454 @@
+{
+  "product_categories": [
+    {
+      "id": 199,
+      "name": "All-time favourites",
+      "slug": "alltimefavs",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 200,
+      "name": "Best Value",
+      "slug": "bestvalue",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 175,
+      "name": "BIG Bottles",
+      "slug": "bigbottles",
+      "parent": 174,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 1
+    },
+    {
+      "id": 174,
+      "name": "Cellar Collections",
+      "slug": "collections",
+      "parent": 0,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 13
+    },
+    {
+      "id": 186,
+      "name": "Cellar Filters",
+      "slug": "cellar-filters",
+      "parent": 0,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 154,
+      "name": "Chillaxing",
+      "slug": "chillaxing",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 6
+    },
+    {
+      "id": 181,
+      "name": "Events",
+      "slug": "events",
+      "parent": 178,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 185,
+      "name": "Experience Filters",
+      "slug": "filter",
+      "parent": 0,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 195,
+      "name": "Explore tours &amp; offers...",
+      "slug": "tours-offers-filter",
+      "parent": 185,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 189,
+      "name": "Festivals",
+      "slug": "festivals",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 180,
+      "name": "I want a sommelier service for...",
+      "slug": "sommelier-services",
+      "parent": 185,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 184,
+      "name": "I'm eating...",
+      "slug": "eating",
+      "parent": 186,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 192,
+      "name": "Learning about wine",
+      "slug": "learning",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 193,
+      "name": "Meet the Experts",
+      "slug": "experts",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 179,
+      "name": "My preferred style of wine is...",
+      "slug": "styles",
+      "parent": 186,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 190,
+      "name": "National events",
+      "slug": "nationalevents",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 198,
+      "name": "New &amp; exciting",
+      "slug": "newexciting",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 201,
+      "name": "Rare &amp; Matured",
+      "slug": "rarematured",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 202,
+      "name": "Recommended wine journey",
+      "slug": "journey",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 153,
+      "name": "Romance",
+      "slug": "romance",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 3
+    },
+    {
+      "id": 155,
+      "name": "Rose",
+      "slug": "rose",
+      "parent": 177,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 182,
+      "name": "Sommelier",
+      "slug": "sommelier",
+      "parent": 178,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 196,
+      "name": "Sommelier Picks",
+      "slug": "sommpicks",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 183,
+      "name": "Tours &amp; Offers",
+      "slug": "tours-offers",
+      "parent": 178,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 197,
+      "name": "Trending",
+      "slug": "trending",
+      "parent": 187,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 194,
+      "name": "Tuning the Vine",
+      "slug": "tuning",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 188,
+      "name": "Upcoming wine events...",
+      "slug": "upcomingevents",
+      "parent": 185,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 176,
+      "name": "Well-Tuned Wines",
+      "slug": "welltuned",
+      "parent": 174,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 187,
+      "name": "What is popular...",
+      "slug": "popular",
+      "parent": 186,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 178,
+      "name": "Wine Experiences",
+      "slug": "experiences",
+      "parent": 0,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 191,
+      "name": "Wine Tastings",
+      "slug": "tastings",
+      "parent": 188,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 0
+    },
+    {
+      "id": 177,
+      "name": "Wine Types",
+      "slug": "winetypes",
+      "parent": 0,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 13
+    },
+    {
+      "id": 9,
+      "name": "I'm in the mood for...",
+      "slug": "moods",
+      "parent": 186,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 58
+    },
+    {
+      "id": 19,
+      "name": "OMG!",
+      "slug": "omg",
+      "parent": 9,
+      "description": "",
+      "display": "both",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/outrageous.png",
+      "count": 9
+    },
+    {
+      "id": 13,
+      "name": "Exploring",
+      "slug": "exploring",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/explore3.png",
+      "count": 9
+    },
+    {
+      "id": 10,
+      "name": "Partying",
+      "slug": "partying",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/party2.png",
+      "count": 7
+    },
+    {
+      "id": 17,
+      "name": "Sharing",
+      "slug": "sharing",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/sharing3.png",
+      "count": 9
+    },
+    {
+      "id": 16,
+      "name": "Summertime",
+      "slug": "summertime",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/summertine3.png",
+      "count": 7
+    },
+    {
+      "id": 116,
+      "name": "Wine Geeks",
+      "slug": "wine-geeks",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/talkwine3.png",
+      "count": 2
+    },
+    {
+      "id": 18,
+      "name": "Celebrating!",
+      "slug": "celebrating",
+      "parent": 9,
+      "description": "",
+      "display": "default",
+      "image": "https://myvinos.club/wp-content/uploads/2015/03/celebrate2.png",
+      "count": 10
+    },
+    {
+      "id": 11,
+      "name": "Reserve Wines",
+      "slug": "reserve-wines",
+      "parent": 174,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 61
+    },
+    {
+      "id": 14,
+      "name": "Sparkling",
+      "slug": "sparkling",
+      "parent": 177,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 9
+    },
+    {
+      "id": 12,
+      "name": "White",
+      "slug": "white",
+      "parent": 177,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 20
+    },
+    {
+      "id": 15,
+      "name": "Red",
+      "slug": "red",
+      "parent": 177,
+      "description": "",
+      "display": "products",
+      "image": "",
+      "count": 28
+    },
+    {
+      "id": 66,
+      "name": "Dessert",
+      "slug": "dessert",
+      "parent": 177,
+      "description": "",
+      "display": "default",
+      "image": "",
+      "count": 4
+    }
+  ]
+}

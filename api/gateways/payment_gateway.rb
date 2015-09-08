@@ -46,11 +46,19 @@ class PaymentGateway
     # }
 
     begin
-      response =@rest_util.execute_form_post(uri, nil, payload)
-      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL} | Response code: #{response.response_code}" if response.response_code != 200
+      response = @rest_util.execute_form_post(uri, nil, payload)
+
+      if response.response_code != 200
+        message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL} | Response code: #{response.response_code}"
+        LOGGER.error message
+        raise ApiError, message
+      end
+
       return response
     rescue RestClient::Exception => e
-      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+      message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+      LOGGER.error message
+      raise ApiError, message
     end
   end
 
@@ -60,7 +68,7 @@ class PaymentGateway
     password = @config[:payment_api_password]
     entity_id = @config[:payment_api_entity_id]
     uri = "#{@config[:payment_api_uri]}/checkouts/#{checkout_id}/payment" +
-      "?authentication.userId=#{user_id}&authentication.password=#{password}&authentication.entityId=#{entity_id}"
+        "?authentication.userId=#{user_id}&authentication.password=#{password}&authentication.entityId=#{entity_id}"
 
     # SAMPLE RESPONSE (GOOD):
     # {
@@ -99,10 +107,16 @@ class PaymentGateway
 
     begin
       response = @rest_util.execute_get(uri, nil)
-      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL} | Response code: #{response.response_code}" if response.response_code != 200
+      if response.response_code != 200
+        message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL} | Response code: #{response.response_code}"
+        LOGGER.error message
+        raise ApiError, message
+      end
       return response
     rescue RestClient::Exception => e
-      raise ApiError, "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+      message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+      LOGGER.error message
+      raise ApiError, message
     end
   end
 end
