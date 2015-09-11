@@ -110,12 +110,24 @@ class ProductGateway
     auth_header = @key_provider.get_product_api_auth_key
 
     begin
+
       response = @rest_util.execute_post(uri, auth_header, data.to_json)
-      unless response.response_code.to_s.start_with?('2')
+      code = response.response_code
+      body = JSON.parse(response.response_body, :symbolize_names => true)
+
+      unless code.to_s.start_with?('2')
+
+        # if the user already exists, just return
+        if code == 400 && body[:errors][0][:code] == 'registration-error-email-exists'
+          uri= "#{@config[:product_api_uri]}/customers/#{email}"
+          return @rest_util.execute_get(uri, auth_header)
+        end
+
         message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
         @log_service.log_error message
         raise ApiError, message
       end
+
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_USER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"
@@ -135,7 +147,7 @@ class ProductGateway
             },
             :billing_address => nil,
             :shipping_address => nil,
-            :customer_id => user.id.to_i,
+            :customer_id => user.external_id,
             :line_items => products,
             :shipping_lines => [
                 {

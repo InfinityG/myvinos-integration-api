@@ -26,10 +26,7 @@ class UserService
     last_name = validated_auth[:last_name]
     email = validated_auth[:email]
 
-    # create new user on third_party
     third_party_user_result = @product_gateway.create_user username, email, first_name, last_name
-
-    # create user on local db
     new_external_user = JSON.parse(third_party_user_result.response_body, :symbolize_names => true)
     third_party_id = new_external_user[:customer][:id].to_s
     @user_repository.create external_id, third_party_id, username, first_name, last_name, email

@@ -34,7 +34,11 @@ class ApiValidator
       #fields
       # errors.push INVALID_USER_ID unless GeneralValidator.validate_string_strict data[:user_id]
       # errors.push INVALID_TYPE unless GeneralValidator.validate_string data[:type]
-      errors.push INVALID_TYPE if data[:type].to_s.downcase != ('vin_purchase' || 'vin_redemption')
+
+      if (! data[:type].to_s.downcase == 'vin_purchase') || (! data[:type].to_s.downcase == 'vin_redemption')
+        errors.push INVALID_TYPE
+      end
+
       errors.push NO_PRODUCTS_FOUND if data[:products] == nil || data[:products].count == 0
 
       data[:products].each do |item|

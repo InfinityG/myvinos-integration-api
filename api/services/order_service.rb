@@ -119,7 +119,7 @@ class OrderService
 
     # these operations all update fields on the local_order (by reference)
     create_third_party_order(local_order, user, parsed_products[:order_products])
-    create_delivery(local_order, user)
+    # create_delivery(local_order, user)
     update_third_party_order_status local_order
 
     @order_repository.update_order local_order
@@ -148,7 +148,7 @@ class OrderService
 
   def create_third_party_order(local_order, user, parsed_products)
     begin
-      third_party_order = send_order_create_request(user, parsed_products[:order_products])
+      third_party_order = send_order_create_request(user, parsed_products)
       local_order.external_order_id = third_party_order[:id]
     rescue ApiError
       local_order.status = 'third party order creation failed'
@@ -209,7 +209,10 @@ class OrderService
     order_products_arr = []
 
     data[:products].each do |product|
-      cached_product = @product_service.get_product product.id
+      id = product[:product_id]
+      quantity = product[:quantity]
+
+      cached_product = @product_service.get_product id
       raise ApiError, INVALID_PRODUCT if cached_product == nil
 
       price = cached_product.price.to_i
@@ -217,7 +220,7 @@ class OrderService
       raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
 
       detailed_products_arr << cached_product
-      order_products_arr << {:product_id => product.id, :quantity => product.quantity}
+      order_products_arr << {:product_id => id, :quantity => quantity}
     end
 
     {:detailed_products => detailed_products_arr, :order_products => order_products_arr, :total => running_total}

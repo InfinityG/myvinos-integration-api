@@ -3,6 +3,7 @@ module ErrorConstants
   module ApiErrors
     # Error numbers!
     THIRD_PARTY_USER_CREATION_ERROR = 'User could not be created on 3rd party'
+    THIRD_PARTY_USER_ALREADY_EXISTS_ERROR = 'User already exists on 3rd party'
     THIRD_PARTY_USER_REQUEST_ERROR = 'User could not be retrieved from 3rd party'
     THIRD_PARTY_ORDER_CREATION_ERROR = 'Order could not be created on 3rd party'
     THIRD_PARTY_ORDER_UPDATE_ERROR = 'Order status could not be updated on 3rd party'
