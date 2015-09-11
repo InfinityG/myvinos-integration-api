@@ -14,6 +14,8 @@ class CacheRepository
 
     mapped_products.each do |product|
 
+      # category_arr = build_category_arr(product[:categories], mapped_categories)
+
       product_arr << Product.new(:product_id => product[:product_id],
                                  :product_type => product[:product_type],
                                  :supplier => product[:supplier],
@@ -39,6 +41,17 @@ class CacheRepository
     cache.products
 
   end
+
+  # TODO!
+  # def build_category_arr(categories, mapped_categories)
+  #   categories.each do |category|
+  #     mapped_categories.each do |mapped_category|
+  #       # if category.to_s.downcase == mapped_categories[:]
+  #       #
+  #       # end
+  #     end
+  #   end
+  # end
 
   def get_products
     cache = Cache.first

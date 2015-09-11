@@ -1,6 +1,7 @@
 require './api/utils/rest_util'
 require './api/utils/key_provider'
 require './api/services/config_service'
+require './api/services/log_service'
 require './api/constants/error_constants'
 require './api/errors/api_error'
 require 'json'
@@ -9,10 +10,12 @@ class ProductGateway
 
   include ErrorConstants::ApiErrors
 
-  def initialize(rest_util = RestUtil, key_provider = KeyProvider, config_service = ConfigurationService)
+  def initialize(rest_util = RestUtil, key_provider = KeyProvider,
+                 config_service = ConfigurationService, log_service = LogService)
     @rest_util = rest_util.new
     @config = config_service.new.get_config
     @key_provider = key_provider.new
+    @log_service = log_service.new
   end
 
   def get_all_products
@@ -22,14 +25,33 @@ class ProductGateway
     begin
       response = @rest_util.execute_get(uri, auth_header)
       unless response.response_code.to_s.start_with?('2')
-        message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
-        LOGGER.error message
+        message = "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR} | Response code: #{response.response_code}"
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
+      raise ApiError, message
+    end
+  end
+
+  def get_all_categories
+    uri= "#{@config[:product_api_uri]}/products/categories"
+    auth_header = @key_provider.get_product_api_auth_key
+
+    begin
+      response = @rest_util.execute_get(uri, auth_header)
+      unless response.response_code.to_s.start_with?('2')
+        message = "#{THIRD_PARTY_CATEGORY_REQUEST_ERROR} | Response code: #{response.response_code}"
+        @log_service.log_error message
+        raise ApiError, message
+      end
+      return response
+    rescue RestClient::Exception => e
+      message = "#{THIRD_PARTY_CATEGORY_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
+      @log_service.log_error message
       raise ApiError, message
     end
   end
@@ -43,14 +65,14 @@ class ProductGateway
     begin
       response = @rest_util.execute_get(uri, auth_header)
       unless response.response_code.to_s.start_with?('2')
-        message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
-        LOGGER.error message
+        message = "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR} | Response code: #{response.response_code}"
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_PRODUCT_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end
@@ -62,14 +84,14 @@ class ProductGateway
     begin
       response = @rest_util.execute_get(uri, auth_header)
       unless response.response_code.to_s.start_with?('2')
-        message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
-        LOGGER.error message
+        message = "#{THIRD_PARTY_USER_REQUEST_ERROR} | Response code: #{response.response_code}"
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_USER_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end
@@ -91,13 +113,13 @@ class ProductGateway
       response = @rest_util.execute_post(uri, auth_header, data.to_json)
       unless response.response_code.to_s.start_with?('2')
         message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
-        LOGGER.error message
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_USER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end
@@ -133,7 +155,7 @@ class ProductGateway
       return @rest_util.execute_post(uri, auth_header, data.to_json)
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_ORDER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
 
@@ -154,7 +176,7 @@ class ProductGateway
       return @rest_util.execute_post(uri, auth_header, data.to_json)
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_ORDER_UPDATE_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
 

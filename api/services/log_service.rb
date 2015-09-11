@@ -1,9 +1,16 @@
-require './api/repositories/log_repository'
+require 'logger'
+require 'json'
+require './api/services/config_service'
 
-module LogService
-  def log(user_id, type, type_id, operation, description)
-    # user_id = @current_user.id
-    log_repository = LogRepository.new
-    log_repository.create(user_id, type, type_id, operation, description)
+class LogService
+
+  def initialize
+    config = ConfigurationService.new.get_config
+    @logger = Logger.new config[:logger_file], config[:logger_age], config[:logger_size]
   end
+
+  def log_error(message)
+    @logger.error(message)
+  end
+
 end

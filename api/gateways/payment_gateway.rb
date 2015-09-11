@@ -1,5 +1,6 @@
 require './api/utils/rest_util'
 require './api/services/config_service'
+require './api/services/log_service'
 require './api/constants/error_constants'
 require './api/errors/api_error'
 require 'json'
@@ -7,9 +8,10 @@ require 'json'
 class PaymentGateway
   include ErrorConstants::ApiErrors
 
-  def initialize(rest_util = RestUtil, config_service = ConfigurationService)
+  def initialize(rest_util = RestUtil, config_service = ConfigurationService, log_service = LogService)
     @rest_util = rest_util.new
     @config = config_service.new.get_config
+    @log_service = log_service.new
   end
 
   def send_checkout_request(payment_type, amount, currency)
@@ -50,14 +52,14 @@ class PaymentGateway
 
       if response.response_code != 200
         message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL} | Response code: #{response.response_code}"
-        LOGGER.error message
+        @log_service.log_error message
         raise ApiError, message
       end
 
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end
@@ -109,13 +111,13 @@ class PaymentGateway
       response = @rest_util.execute_get(uri, nil)
       if response.response_code != 200
         message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL} | Response code: #{response.response_code}"
-        LOGGER.error message
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end

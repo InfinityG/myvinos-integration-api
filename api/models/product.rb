@@ -3,7 +3,7 @@ module MyVinos
     class Product
       include MongoMapper::EmbeddedDocument
 
-      key :product_id, String
+      key :category_id, String
       key :product_type, String
       key :supplier, String
       key :brand, String
@@ -13,6 +13,8 @@ module MyVinos
       key :description, String
       key :image_url, String
       key :tags, Hash
+
+      # many :categories, :class_name => 'MyVinos::Models::Category'
     end
   end
 end

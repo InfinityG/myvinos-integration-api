@@ -99,12 +99,13 @@ class OrderService
 
     checkout_response = send_checkout_status_request checkout_id
     result_code = checkout_response[:result][:code]
+    result_description = checkout_response[:result][:description]
 
     @config[:payment_success_codes].each do |code|
       return {:success => true, :transaction_id => checkout_response[:id]} if result_code.to_s == code.to_s
     end
 
-    {:success => false}
+    {:success => false, :description => result_description}
   end
 
   ###################

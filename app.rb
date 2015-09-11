@@ -2,7 +2,6 @@ require 'sinatra/base'
 require 'openssl'
 require 'webrick'
 require 'webrick/https'
-require 'logger'
 require 'mongo'
 require 'mongo_mapper'
 
@@ -19,9 +18,6 @@ class ApiApp < Sinatra::Base
 
   configure do
     config = ConfigurationService.new.get_config
-
-    puts 'Setting up logging...'
-    LOGGER = Logger.new config[:logger_file], 10, config[:logger_age]
 
     puts 'Setting up database...'
     MongoMapper.connection = Mongo::MongoClient.new(config[:mongo_host], config[:mongo_port])

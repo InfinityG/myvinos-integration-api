@@ -1,9 +1,11 @@
 require './api/services/config_service'
+require './api/mappers/category_mapper'
 
 class ProductMapper
 
-  def initialize(config_service = ConfigurationService)
+  def initialize(config_service = ConfigurationService, category_mapper = CategoryMapper)
     @config = config_service.new.get_config
+    @category_mapper = category_mapper.new
   end
 
   def map_products(products)

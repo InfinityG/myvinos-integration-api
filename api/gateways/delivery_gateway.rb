@@ -1,6 +1,7 @@
 require './api/utils/rest_util'
 require './api/utils/key_provider'
 require './api/services/config_service'
+require './api/services/log_service'
 require './api/constants/error_constants'
 require './api/errors/api_error'
 require 'json'
@@ -8,10 +9,12 @@ require 'json'
 class DeliveryGateway
   include ErrorConstants::ApiErrors
 
-  def initialize(rest_util = RestUtil, key_provider = KeyProvider, config_service = ConfigurationService)
+  def initialize(rest_util = RestUtil, key_provider = KeyProvider,
+                 config_service = ConfigurationService, log_service = LogService)
     @rest_util = rest_util.new
     @config = config_service.new.get_config
     @key_provider = key_provider.new
+    @log_service = log_service.new
   end
 
   def send_delivery_request(user, order)
@@ -34,13 +37,13 @@ class DeliveryGateway
       response = @rest_util.execute_post(uri, auth_header, data.to_json)
       if response.response_code != 200
         message = "#{THIRD_PARTY_DELIVERY_REQUEST_ERROR} | Response code: #{response.response_code}"
-        LOGGER.error message
+        @log_service.log_error message
         raise ApiError, message
       end
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_DELIVERY_REQUEST_ERROR}: #{e.http_code} | #{e.http_body}"
-      LOGGER.error message
+      @log_service.log_error message
       raise ApiError, message
     end
   end
