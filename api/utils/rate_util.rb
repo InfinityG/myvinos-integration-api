@@ -5,5 +5,11 @@ module RateUtil
     config = ConfigurationService.new.get_config
     rate = config[:exchange_rate]
     return fiat * rate
+    end
+
+  def self.convert_vin_to_fiat(vin)
+    config = ConfigurationService.new.get_config
+    rate = config[:exchange_rate]
+    return vin / rate
   end
 end

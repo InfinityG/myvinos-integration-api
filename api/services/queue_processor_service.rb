@@ -37,7 +37,7 @@ class QueueProcessorService
               order = order_service.update_order_transaction item.order_id, status_result[:transaction_id], 'success'
 
               # credit the user's VIN balance - apply the conversion from ZAR to VIN
-              amount = RateUtil.convert_fiat_to_vin(order.transaction.amount.to_i)
+              amount = order.transaction.amount.to_i
               user_service.update_balance(order.user_id, amount)
             end
 

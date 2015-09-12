@@ -73,7 +73,8 @@ class OrderService
       products << product
     end
 
-    checkout_id = create_checkout_id(amount)
+    converted_amount = RateUtil.convert_vin_to_fiat amount
+    checkout_id = create_checkout_id(converted_amount)
 
     order = @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
                                                         @config[:default_fiat_currency], products)
