@@ -101,11 +101,15 @@ class OrderService
     result_code = checkout_response[:result][:code]
     result_description = checkout_response[:result][:description]
 
-    @config[:payment_success_codes].each do |code|
-      return {:success => true, :transaction_id => checkout_response[:id]} if result_code.to_s == code.to_s
+    if @config[:payment_pending_codes].include? result_code.to_s
+      return {:status => 'pending'}
     end
 
-    {:success => false, :description => result_description}
+    if @config[:payment_success_codes].include? result_code.to_s
+      return {:status => 'success', :transaction_id => checkout_response[:id]}
+    end
+
+    {:status => 'failure', :description => result_description}
   end
 
   ###################
@@ -196,9 +200,7 @@ class OrderService
     result_code = checkout_response[:result][:code]
 
     # check the response codes against the success code list
-    @config[:payment_pending_codes].each do |code|
-      checkout_id = checkout_response[:id] if result_code.to_s == code.to_s
-    end
+    checkout_id = checkout_response[:id] if @config[:payment_pending_codes].include? result_code.to_s
 
     checkout_id
   end

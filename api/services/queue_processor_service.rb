@@ -22,28 +22,24 @@ class QueueProcessorService
           puts 'Pending items: ' + pending_items.length.to_s
 
           pending_items.each do |item|
-            status = order_service.get_checkout_status(item.checkout_id)
-            puts "Item status #{item.checkout_id}: #{status}"
+            status_result = order_service.get_checkout_status(item.checkout_id)
+            puts "Item status #{item.checkout_id}: #{status_result}"
 
-            unless status[:success]
-              # flag the queue item as error
-              queue_service.update_queue_item item.id, 'error'
-
-              # flag the transaction as error
-              order_service.update_order_transaction item.order_id, nil, 'error'
-
-              next
+            # failure
+            if status_result[:status] == 'failure'
+              queue_service.update_queue_item item.id, 'failure'
+              order_service.update_order_transaction item.order_id, nil, 'failure'
             end
 
-            # flag the queue item as complete
-            queue_service.update_queue_item item.id, 'complete'
+            # success
+            if status_result[:status] == 'success'
+              queue_service.update_queue_item item.id, 'success'
+              order = order_service.update_order_transaction item.order_id, status_result[:transaction_id], 'success'
 
-            # flag the transaction as complete
-            order = order_service.update_order_transaction item.order_id, status[:transaction_id], 'complete'
-
-            # credit the user's VIN balance - apply the conversion from ZAR to VIN
-            amount = RateUtil.convert_fiat_to_vin(order.transaction.amount.to_i)
-            user_service.update_balance(order.user_id, amount)
+              # credit the user's VIN balance - apply the conversion from ZAR to VIN
+              amount = RateUtil.convert_fiat_to_vin(order.transaction.amount.to_i)
+              user_service.update_balance(order.user_id, amount)
+            end
 
             sleep 1.seconds
           end
