@@ -147,7 +147,7 @@ class ProductGateway
     end
   end
 
-  def create_order(user, products)
+  def create_order(user, address, products)
 
     data = {
         :order => {
@@ -157,8 +157,8 @@ class ProductGateway
                 :paid => true
             },
             :billing_address => nil,
-            :shipping_address => nil,
-            :customer_id => user.external_id,
+            :shipping_address => {:address_1 => address},
+            :customer_id => user.third_party_id,
             :line_items => products,
             :shipping_lines => [
                 {

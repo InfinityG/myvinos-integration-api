@@ -153,7 +153,8 @@ class OrderService
 
   def create_third_party_order(local_order, user, parsed_products)
     begin
-      third_party_order = send_order_create_request(user, parsed_products)
+      address = "#{local_order.delivery.address} (#{local_order.delivery.coordinates})"
+      third_party_order = send_order_create_request(user, address, parsed_products)
       local_order.external_order_id = third_party_order[:id]
     rescue ApiError
       local_order.status = 'third party order creation failed'
@@ -239,8 +240,8 @@ class OrderService
     JSON.parse(response.response_body, :symbolize_names => true)
   end
 
-  def send_order_create_request(user, products_arr)
-    order_response = @product_gateway.create_order user, products_arr
+  def send_order_create_request(user, address, products_arr)
+    order_response = @product_gateway.create_order user, address, products_arr
     JSON.parse(order_response.response_body, :symbolize_names => true)
   end
 
