@@ -44,7 +44,7 @@ class UserService
 
   def get_by_username(username, user = nil)
     result = @user_repository.get_by_username username
-    raise ApiError, INVALID_USERNAME if result.username != username if user != nil
+    raise ApiError, INVALID_USERNAME if (result != nil && result.username != username) if user != nil
 
     result
   end
