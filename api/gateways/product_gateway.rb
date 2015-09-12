@@ -97,39 +97,50 @@ class ProductGateway
   end
 
   def create_user(username, email, first_name, last_name)
-    data = {
-        :customer => {
-            :email => email,
-            :first_name => first_name,
-            :last_name => last_name,
-            :username => username
-        }
-    }
-
-    uri= "#{@config[:product_api_uri]}/customers"
     auth_header = @key_provider.get_product_api_auth_key
 
     begin
 
-      response = @rest_util.execute_post(uri, auth_header, data.to_json)
-      code = response.response_code
-      body = JSON.parse(response.response_body, :symbolize_names => true)
+      uri= "#{@config[:product_api_uri]}/customers/email/#{email}"
+      existing_user_result = @rest_util.execute_get(uri, auth_header)
 
-      unless code.to_s.start_with?('2')
-
-        # if the user already exists, just return
-        if code == 400 && body[:errors][0][:code] == 'registration-error-email-exists'
-          uri= "#{@config[:product_api_uri]}/customers/#{email}"
-          return @rest_util.execute_get(uri, auth_header)
-        end
-
-        message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+      # if user exists, just return
+      if existing_user_result.response_code == 200
+        return existing_user_result
+      else
+        message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{existing_user_result.response_code}"
         @log_service.log_error message
         raise ApiError, message
       end
 
-      return response
     rescue RestClient::Exception => e
+
+      # if user not found, create new one
+      if e.http_code == 404
+
+        uri= "#{@config[:product_api_uri]}/customers"
+
+        data = {
+            :customer => {
+                :email => email,
+                :first_name => first_name,
+                :last_name => last_name,
+                :username => username
+            }
+        }
+
+        response = @rest_util.execute_post(uri, auth_header, data.to_json)
+        code = response.response_code
+
+        unless code.to_s.start_with?('2')
+          message = "#{THIRD_PARTY_USER_CREATION_ERROR} | Response code: #{response.response_code}"
+          @log_service.log_error message
+          raise ApiError, message
+        end
+
+        return response
+      end
+
       message = "#{THIRD_PARTY_USER_CREATION_ERROR}: #{e.http_code} | #{e.http_body}"
       @log_service.log_error message
       raise ApiError, message

@@ -32,7 +32,7 @@ module Sinatra
       app.get '/orders' do
         begin
           orders = OrderService.build.get_orders(@current_user)
-          status 201
+          status 200
           orders.to_json
         rescue ApiError => e
           status 500

@@ -19,6 +19,26 @@ class ProductService
     products = @cache_repository.get_products
     return products if (products != nil && products.length > 0)
 
+    repopulate_products_cache
+  end
+
+  def get_product(product_id)
+    product = @cache_repository.get_product(product_id)
+    return product if product != nil
+
+    repopulate_products_cache
+    @cache_repository.get_product(product_id)
+
+    # response = @product_gateway.get_product(product_id)
+    #
+    # raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if response.response_code != 200
+    # result = JSON.parse(response.response_body, :symbolize_names => true)
+    #
+    # @product_mapper.map_product result[:product]
+
+  end
+
+  def repopulate_products_cache
     # get the products
     products_response = @product_gateway.get_all_products
     raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if products_response.response_code != 200
@@ -36,18 +56,6 @@ class ProductService
     timeout = (Time.now + @config[:cache_timeout]).to_i
 
     @cache_repository.save_products(mapped_products, timeout)
-  end
-
-  def get_product(product_id)
-    product = @cache_repository.get_product(product_id)
-    return product if product != nil
-
-    response = @product_gateway.get_product(product_id)
-
-    raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if response.response_code != 200
-    result = JSON.parse(response.response_body, :symbolize_names => true)
-
-    @product_mapper.map_product result[:product]
   end
 
   # def get_category_tree_for_product(category_id)

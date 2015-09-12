@@ -14,6 +14,7 @@ module Sinatra
 
         if (method == 'OPTIONS') ||
             (method == 'GET' && path == '/products') ||
+            (method == 'GET' && (path.include? '/products/')) ||
             (method == 'POST' && path == '/users') ||
             (method == 'POST' && path == '/tokens')
           return

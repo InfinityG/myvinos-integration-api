@@ -7,6 +7,7 @@ class RestUtil
 
   def execute_get(api_uri, auth_header)
     puts "Uri: #{api_uri}"
+    puts "Auth: #{auth_header}"
 
     client = RestClient::Resource.new api_uri
     response = client.get(:content_type => 'application/json;charset=UTF-8',
@@ -18,6 +19,7 @@ class RestUtil
 
   def execute_post(api_uri, auth_header, json = '')
     puts "Request uri: #{api_uri}"
+    puts "Auth: #{auth_header}"
     puts "Request JSON: #{json}"
 
     # client = get_client api_uri, true
@@ -37,6 +39,7 @@ class RestUtil
 
   def execute_post_with_cert(api_uri, auth_header, json = '')
     puts "Request uri: #{api_uri}"
+    puts "Auth: #{auth_header}"
     puts "Request JSON: #{json}"
 
     # client = get_client api_uri, true
@@ -57,6 +60,7 @@ class RestUtil
 
   def execute_form_post(uri, auth_header, payload = '')
     puts "Request uri: #{uri}"
+    puts "Auth: #{auth_header}"
     puts "Request body: #{payload}"
 
     response = begin

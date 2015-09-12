@@ -26,10 +26,21 @@ module Sinatra
       end
 
       #get user details
-      app.get '/product/:product_id' do
+      app.get '/products/:product_id' do
         content_type :json
 
         product_id = params[:product_id]
+
+        content_type :json
+
+        begin
+          product_service = ProductService.new
+          product = product_service.get_product product_id
+          return product.to_json
+        rescue ApiError => e
+          status 500
+          return e.message.to_json
+        end
       end
 
     end
