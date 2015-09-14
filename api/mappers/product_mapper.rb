@@ -8,24 +8,26 @@ class ProductMapper
     @category_mapper = category_mapper.new
   end
 
-  def map_products(products)
+  def map_products(products, mapped_categories)
     result = []
 
     # only map in-stock products
     products.each do |product|
-      result << map_product(product) if product[:in_stock]
+      result << map_product(product, mapped_categories) if product[:in_stock]
     end
 
     result
   end
 
-  def map_product(product)
+  def map_product(product, mapped_categories)
     currency = nil
     producer = nil
-    color = nil
     grapes = []
     style = []
-    mood = []
+    region = nil
+    score_1 = nil
+    score_2 = nil
+    score_3 = nil
 
     case product[:type].to_s.downcase
       when 'simple'
@@ -43,7 +45,7 @@ class ProductMapper
       if attribute[:options] != nil && attribute[:options].length > 0
 
         producer = attribute[:options][0] if attribute[:name].to_s.downcase == 'producer'
-        color = attribute[:options][0] if attribute[:name].to_s.downcase == 'wine'
+        region = attribute[:options][0] if attribute[:name].to_s.downcase == 'region'
 
         if attribute[:name].to_s.downcase == 'grapes'
           attribute[:options].each do |option|
@@ -57,12 +59,6 @@ class ProductMapper
           end
         end
 
-        if attribute[:name].to_s.downcase == 'mood'
-          attribute[:options].each do |option|
-            mood << option
-          end
-        end
-
       end
     end
 
@@ -72,41 +68,52 @@ class ProductMapper
       image = product[:images][0][:src]
     end
 
-    # {
-    #     "name": "Momento Tinta Barocca (2013)",
-    #     "product_type": "wine",
-    #     "supplier": "Reserve Wine",
-    #     "brand": "Momento",
-    #     "price": 20,
-    #     "currency": "VIN",
-    #     "image_url": "",
-    #     "tags": {
-    #         "color": "Red",
-    #         "grapes": "Blend",
-    #         "style": "Spicy",
-    #         "mood": "Romantic",
-    #         "food": []
-    #     }
-    # }
+    categories = build_categories product, mapped_categories
 
     {
         :product_id => product[:id],
         :product_type => product_type,
-        :supplier => 'MyVinos',
         :producer => producer,
-        # :brand => brand,
         :price => product[:price],
         :currency => currency,
         :name => product[:title],
         :description => product[:description],
         :image_url => image,
         :tags => {
-
-            :color => color,
             :grapes => grapes,
             :style => style,
-            :mood => mood
-        }
+            :region => region,
+            :score_1 => score_1,
+            :score_2 => score_2,
+            :score_3 => score_3
+        },
+        :categories => categories
     }
   end
+
+  # recursively build categories specific to each product
+  def build_categories(product, mapped_categories)
+    collection = []
+
+    product[:categories].each do |category_name|
+      mapped_categories.each do |mapped_category|
+        build_breadcrumb(collection, category_name, mapped_category)
+      end
+    end
+
+    collection
+  end
+
+  def build_breadcrumb(collection, category_name, mapped_category)
+    if mapped_category[:child_index].include?(category_name) || mapped_category[:name] == category_name
+      current_category = {:name => mapped_category[:name], :categories => [], :image => mapped_category[:image]}
+
+      mapped_category[:categories].each do |category|
+        build_breadcrumb current_category[:categories], category_name, category
+      end
+
+      collection << current_category
+    end
+  end
+
 end

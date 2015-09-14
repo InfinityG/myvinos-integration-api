@@ -31,6 +31,7 @@ class CategoryMapper
         if mapped_category[:category_id] == category[:parent]
           sub_category = map_category(category)
           child_index << category[:name]
+          mapped_category[:child_index] << category[:name]
           mapped_category[:categories] << sub_category
 
           # recurse
@@ -38,7 +39,6 @@ class CategoryMapper
         end
       end
     end
-
   end
 
   def map_category(category)
