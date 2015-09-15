@@ -46,7 +46,9 @@ class CategoryMapper
         :category_id => category[:id],
         :child_index => [],
         :name => category[:name],
-        :image => category[:image],
+        :slug => category[:slug],
+        :image_url => category[:image],
+        :description => category[:description],
         :categories => []
     }
   end

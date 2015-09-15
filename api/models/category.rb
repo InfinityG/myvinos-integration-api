@@ -3,10 +3,8 @@ module MyVinos
     class Category
       include MongoMapper::EmbeddedDocument
 
-      # key :category_id, String
       key :name, String
-      key :image, String
-      # key :child_index, Array
+      key :image_url, String
 
       many :categories, :class_name => 'MyVinos::Models::Category'
     end

@@ -17,8 +17,6 @@ class CacheRepository
 
       product_arr << Product.new(:product_id => product[:product_id],
                                  :product_type => product[:product_type],
-                                 :supplier => product[:supplier],
-                                 :brand => product[:brand],
                                  :price => product[:price],
                                  :currency => product[:currency],
                                  :name => product[:name],

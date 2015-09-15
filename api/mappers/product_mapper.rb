@@ -22,8 +22,8 @@ class ProductMapper
   def map_product(product, mapped_categories)
     currency = nil
     producer = nil
-    grapes = []
-    style = []
+    grapes = nil
+    style = nil
     region = nil
     score_1 = nil
     score_2 = nil
@@ -46,18 +46,8 @@ class ProductMapper
 
         producer = attribute[:options][0] if attribute[:name].to_s.downcase == 'producer'
         region = attribute[:options][0] if attribute[:name].to_s.downcase == 'region'
-
-        if attribute[:name].to_s.downcase == 'grapes'
-          attribute[:options].each do |option|
-            grapes << option
-          end
-        end
-
-        if attribute[:name].to_s.downcase == 'style'
-          attribute[:options].each do |option|
-            style << option
-          end
-        end
+        grapes = attribute[:options][0] if attribute[:name].to_s.downcase == 'grapes'
+        style = attribute[:options][0] if attribute[:name].to_s.downcase == 'style'
 
       end
     end
@@ -73,7 +63,6 @@ class ProductMapper
     {
         :product_id => product[:id],
         :product_type => product_type,
-        :producer => producer,
         :price => product[:price],
         :currency => currency,
         :name => product[:title],
@@ -83,6 +72,7 @@ class ProductMapper
             :grapes => grapes,
             :style => style,
             :region => region,
+            :producer => producer,
             :score_1 => score_1,
             :score_2 => score_2,
             :score_3 => score_3
@@ -106,7 +96,13 @@ class ProductMapper
 
   def build_category_tree(collection, category_name, mapped_category)
     if mapped_category[:child_index].include?(category_name) || mapped_category[:name] == category_name
-      current_category = {:name => mapped_category[:name], :categories => [], :image => mapped_category[:image]}
+      current_category = {
+          :name => mapped_category[:name],
+          :slug => mapped_category[:slug],
+          :categories => [],
+          :image_url => mapped_category[:image_url],
+          :description => mapped_category[:description]
+      }
 
       mapped_category[:categories].each do |category|
         build_category_tree current_category[:categories], category_name, category
