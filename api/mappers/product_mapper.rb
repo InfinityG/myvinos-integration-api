@@ -97,19 +97,19 @@ class ProductMapper
 
     product[:categories].each do |category_name|
       mapped_categories.each do |mapped_category|
-        build_breadcrumb(collection, category_name, mapped_category)
+        build_category_tree(collection, category_name, mapped_category)
       end
     end
 
     collection
   end
 
-  def build_breadcrumb(collection, category_name, mapped_category)
+  def build_category_tree(collection, category_name, mapped_category)
     if mapped_category[:child_index].include?(category_name) || mapped_category[:name] == category_name
       current_category = {:name => mapped_category[:name], :categories => [], :image => mapped_category[:image]}
 
       mapped_category[:categories].each do |category|
-        build_breadcrumb current_category[:categories], category_name, category
+        build_category_tree current_category[:categories], category_name, category
       end
 
       collection << current_category

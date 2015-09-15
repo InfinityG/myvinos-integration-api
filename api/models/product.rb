@@ -14,7 +14,7 @@ module MyVinos
       key :image_url, String
       key :tags, Hash
 
-      # many :categories, :class_name => 'MyVinos::Models::Category'
+      many :categories, :class_name => 'MyVinos::Models::Category'
     end
   end
 end

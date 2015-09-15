@@ -2,6 +2,7 @@ require 'mongo_mapper'
 require 'bson'
 require './api/models/cache'
 require './api/models/product'
+require './api/models/category'
 
 class CacheRepository
   include Mongo
@@ -14,8 +15,6 @@ class CacheRepository
 
     mapped_products.each do |product|
 
-      # category_arr = build_category_arr(product[:categories], mapped_categories)
-
       product_arr << Product.new(:product_id => product[:product_id],
                                  :product_type => product[:product_type],
                                  :supplier => product[:supplier],
@@ -25,7 +24,8 @@ class CacheRepository
                                  :name => product[:name],
                                  :description => product[:description],
                                  :image_url => product[:image_url],
-                                 :tags => product[:tags])
+                                 :tags => product[:tags],
+                                 :categories => product[:categories])
     end
 
     cache = Cache.first
@@ -41,17 +41,6 @@ class CacheRepository
     cache.products
 
   end
-
-  # TODO!
-  # def build_category_arr(categories, mapped_categories)
-  #   categories.each do |category|
-  #     mapped_categories.each do |mapped_category|
-  #       # if category.to_s.downcase == mapped_categories[:]
-  #       #
-  #       # end
-  #     end
-  #   end
-  # end
 
   def get_products
     cache = Cache.first
