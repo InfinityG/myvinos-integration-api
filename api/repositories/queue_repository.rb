@@ -26,5 +26,15 @@ class QueueRepository
     else
       raise "QueueItem with id #{queue_item_id} not found!"
     end
+    end
+
+  def delete_queue_item(queue_item_id)
+    item = QueueItem.find queue_item_id.to_s
+
+    if item != nil
+      QueueItem.destroy(queue_item_id)
+    else
+      raise "QueueItem with id #{queue_item_id} not found!"
+    end
   end
 end

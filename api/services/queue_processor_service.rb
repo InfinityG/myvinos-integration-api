@@ -3,6 +3,7 @@ require './api/services/order_service'
 require './api/services/user_service'
 require './api/services/log_service'
 require './api/utils/rate_util'
+require 'time'
 
 class QueueProcessorService
 
@@ -22,23 +23,33 @@ class QueueProcessorService
           puts 'Pending items: ' + pending_items.length.to_s
 
           pending_items.each do |item|
-            status_result = order_service.get_checkout_status(item.checkout_id)
+            status_result = order_service.get_checkout_status(item.checkout_id, item.created_at)
             puts "Item status #{item.checkout_id}: #{status_result}"
+
+            # abandoned
+            if status_result[:status] == 'abandoned'
+              # queue_service.update_queue_item item.id, 'abandoned'
+              order_service.update_order_transaction item.order_id, nil, 'abandoned'
+              queue_service.delete_queue_item item.id
+            end
 
             # failure
             if status_result[:status] == 'failure'
-              queue_service.update_queue_item item.id, 'failure'
+              # queue_service.update_queue_item item.id, 'failure'
               order_service.update_order_transaction item.order_id, nil, 'failure'
+              queue_service.delete_queue_item item.id
             end
 
             # success
             if status_result[:status] == 'success'
-              queue_service.update_queue_item item.id, 'success'
+              # queue_service.update_queue_item item.id, 'success'
               order = order_service.update_order_transaction item.order_id, status_result[:transaction_id], 'success'
 
               # credit the user's VIN balance - apply the conversion from ZAR to VIN
               amount = order.transaction.amount.to_i
               user_service.update_balance(order.user_id, amount)
+
+              queue_service.delete_queue_item item.id
             end
 
             sleep 1.seconds

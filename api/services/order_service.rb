@@ -93,8 +93,13 @@ class OrderService
     @order_repository.update_order_transaction_status order_id, external_transaction_id, status
   end
 
-  def get_checkout_status(checkout_id)
-    # FOR POSSIBLE RESPONSE CODES:
+  def get_checkout_status(checkout_id, creation_date)
+
+    # check if the expiry period has been reached
+    if (Time.now.to_i - creation_date.to_i) > @config[:purchase_order_timeout].to_i
+      return {:status => 'abandoned'}
+    end
+        # FOR POSSIBLE RESPONSE CODES:
     # http://support.peachpayments.com/hc/en-us/articles/205282107-Determine-Transaction-Status-from-Result-Code
     #http://support.peachpayments.com/hc/en-us/article_attachments/201425397/resultCodes.properties
 

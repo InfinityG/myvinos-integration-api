@@ -16,5 +16,9 @@ class QueueService
 
   def update_queue_item(id, status)
     @queue_repository.update_queue_item id, status
+    end
+
+  def delete_queue_item(id)
+    @queue_repository.delete_queue_item id
   end
 end
