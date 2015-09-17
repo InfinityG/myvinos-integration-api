@@ -31,7 +31,7 @@ class OrderRepository
     Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
   end
 
-  def create_vin_redemption_order(user_id, amount, currency, products, location)
+  def create_vin_redemption_order(user, amount, currency, products, location)
 
     type = 'vin_redemption'
 
@@ -45,10 +45,11 @@ class OrderRepository
                             :time_estimate => '',
                             :distance_estimate => '',
                             :address => location[:address],
-                            :coordinates => location[:coordinates])
+                            :coordinates => location[:coordinates],
+                            :mobile_number => user.mobile_number)
 
     # create order record with transaction and products
-    Order.create(:user_id => user_id,
+    Order.create(:user_id => user.id.to_s,
                  :external_order_id => '',
                  :type => type,
                  :status => 'pending',

@@ -9,6 +9,7 @@ module MyVinos
       key :name, String
       key :description, String
       key :image_url, String
+      key :stock_quantity, Integer
       key :tags, Hash
 
       many :categories, :class_name => 'MyVinos::Models::Category'

@@ -28,14 +28,12 @@ class ProductService
 
     repopulate_products_cache
     @cache_repository.get_product(product_id)
+  end
 
-    # response = @product_gateway.get_product(product_id)
-    #
-    # raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if response.response_code != 200
-    # result = JSON.parse(response.response_body, :symbolize_names => true)
-    #
-    # @product_mapper.map_product result[:product]
-
+  def get_live_product(product_id)
+    product_response = @product_gateway.get_product product_id
+    raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if product_response.response_code != 200
+    JSON.parse(product_response.response_body, :symbolize_names => true)
   end
 
   def repopulate_products_cache

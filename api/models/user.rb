@@ -9,6 +9,7 @@ module MyVinos
       key :first_name, String
       key :last_name, String
       key :email, String
+      key :mobile_number, String
       key :balance, Integer
 
       # many :addresses, :class_name => 'MyVinos::Models::Address'

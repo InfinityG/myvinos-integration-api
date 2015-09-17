@@ -67,6 +67,7 @@ class ProductMapper
         :currency => currency,
         :name => product[:title],
         :description => product[:description],
+        :stock_quantity => product[:stock_quantity],
         :image_url => image,
         :tags => {
             :grapes => grapes,

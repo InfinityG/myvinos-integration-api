@@ -21,6 +21,7 @@ class CacheRepository
                                  :currency => product[:currency],
                                  :name => product[:name],
                                  :description => product[:description],
+                                 :stock_quantity => product[:stock_quantity],
                                  :image_url => product[:image_url],
                                  :tags => product[:tags],
                                  :categories => product[:categories])

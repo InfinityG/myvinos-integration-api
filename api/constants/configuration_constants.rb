@@ -29,7 +29,7 @@ module ConfigurationConstants
         :payment_api_entity_id => ENV['MV_PAYMENT_API_ENTITY_ID'],
         :payment_pending_codes => ['000.200.000', '000.200.100'],
         :payment_success_codes => ['000.000.000', '000.100.110','000.100.111','000.100.112'],
-        :purchase_order_timeout => 30,
+        :purchase_order_timeout => 300,
         :delivery_api_uri => 'https://api.wumdrop.com/v1',
         :delivery_api_key => ENV['MV_DELIVERY_API_KEY'],
         :delivery_pickup_address => "111 Saint George's Mall, Cape Town, 8001",

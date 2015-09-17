@@ -96,7 +96,7 @@ class ProductGateway
     end
   end
 
-  def create_user(username, email, first_name, last_name)
+  def create_user(username, email, first_name, last_name, mobile_number)
     auth_header = @key_provider.get_product_api_auth_key
 
     begin
@@ -125,7 +125,10 @@ class ProductGateway
                 :email => email,
                 :first_name => first_name,
                 :last_name => last_name,
-                :username => username
+                :username => username,
+                :billing_address => {
+                    :phone => mobile_number
+                }
             }
         }
 

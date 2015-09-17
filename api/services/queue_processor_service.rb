@@ -28,21 +28,18 @@ class QueueProcessorService
 
             # abandoned
             if status_result[:status] == 'abandoned'
-              # queue_service.update_queue_item item.id, 'abandoned'
               order_service.update_order_transaction item.order_id, nil, 'abandoned'
               queue_service.delete_queue_item item.id
             end
 
             # failure
             if status_result[:status] == 'failure'
-              # queue_service.update_queue_item item.id, 'failure'
               order_service.update_order_transaction item.order_id, nil, 'failure'
               queue_service.delete_queue_item item.id
             end
 
             # success
             if status_result[:status] == 'success'
-              # queue_service.update_queue_item item.id, 'success'
               order = order_service.update_order_transaction item.order_id, status_result[:transaction_id], 'success'
 
               # credit the user's VIN balance - apply the conversion from ZAR to VIN

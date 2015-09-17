@@ -19,13 +19,13 @@ class DeliveryGateway
 
   def send_delivery_request(user, order)
     data = {
-        :pickup_address => @config[:pickup_address],
-        :pickup_contact_name => @config[:pickup_contact_name],
-        :pickup_contact_phone => @config[:pickup_contact_phone],
-        :pickup_coordinates => @config[:pickup_coords],
+        :pickup_address => @config[:delivery_pickup_address],
+        :pickup_contact_name => @config[:delivery_pickup_contact_name],
+        :pickup_contact_phone => @config[:delivery_pickup_contact_phone],
+        :pickup_coordinates => @config[:delivery_pickup_coords],
         :dropoff_address => order.delivery.address,
         :dropoff_contact_name => "#{user[:first_name]} #{user[:last_name]}",
-        :dropoff_contact_phone => order.delivery.phone,
+        :dropoff_contact_phone => order.delivery.mobile_number,
         :dropoff_coordinates => order.delivery.coordinates,
         :customer_identifier => user[:username]
     }

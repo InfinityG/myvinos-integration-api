@@ -129,7 +129,7 @@ class OrderService
 
     # these operations all update fields on the local_order (by reference)
     create_third_party_order(local_order, user, parsed_products[:order_products])
-    # create_delivery(local_order, user)
+    create_delivery(local_order, user)
     update_third_party_order_status local_order
 
     @order_repository.update_order local_order
@@ -149,7 +149,7 @@ class OrderService
   end
 
   def create_local_order(user, parsed_products, location)
-    @order_repository.create_vin_redemption_order(user.id.to_s,
+    @order_repository.create_vin_redemption_order(user,
                                                   parsed_products[:total],
                                                   @config[:default_crypto_currency],
                                                   parsed_products[:detailed_products],
@@ -243,7 +243,7 @@ class OrderService
   def send_checkout_status_request(checkout_id)
     response = @payment_gateway.get_checkout_status(checkout_id)
     JSON.parse(response.response_body, :symbolize_names => true)
-  end
+    end
 
   def send_order_create_request(user, address, products_arr)
     order_response = @product_gateway.create_order user, address, products_arr
@@ -256,7 +256,6 @@ class OrderService
   end
 
   def send_delivery_request(user, order)
-    delivery_response = @delivery_service.send_delivery_request user, order
-    JSON.parse(delivery_response.response_body, :symbolize_names => true)
+    @delivery_service.send_delivery_request user, order
   end
 end
