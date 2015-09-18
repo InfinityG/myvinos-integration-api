@@ -21,13 +21,17 @@ class UserRepository
     User.first(:username => username)
   end
 
+  def get_all_with_pending_balance
+    User.where(:pending_balance.ne => 0).all
+  end
+
   # only create the user if it doesn't already exist
   def create(external_id, third_party_id, username, first_name = '', last_name = '', email = '', mobile_number = '')
 
     if get_by_username(username) == nil
       User.create(external_id: external_id, third_party_id: third_party_id,
                   username: username, first_name: first_name, last_name: last_name,
-                  email: email, mobile_number: mobile_number, balance: 0)
+                  email: email, mobile_number: mobile_number, balance: 0, pending_balance: 0)
     end
   end
 

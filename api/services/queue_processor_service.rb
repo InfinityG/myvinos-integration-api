@@ -20,7 +20,7 @@ class QueueProcessorService
       while true
         begin
           pending_items = queue_service.get_pending_items
-          puts 'Pending items: ' + pending_items.length.to_s
+          puts 'Pending checkout items: ' + pending_items.length.to_s
 
           pending_items.each do |item|
             status_result = order_service.get_checkout_status(item.checkout_id, item.created_at)

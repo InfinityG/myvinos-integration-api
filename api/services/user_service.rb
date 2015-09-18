@@ -4,15 +4,20 @@ require './api/services/hash_service'
 require './api/gateways/product_gateway'
 require './api/constants/error_constants'
 require './api/errors/api_error'
+require './api/utils/time_util'
+require './api/services/config_service'
 
 class UserService
 
   include ErrorConstants::ApiErrors
+  include TimeUtil
 
-  def initialize(user_repository = UserRepository, hash_service = HashService, product_gateway = ProductGateway)
+  def initialize(user_repository = UserRepository, hash_service = HashService, product_gateway = ProductGateway,
+                 config_service = ConfigurationService)
     @user_repository = user_repository.new
     @hash_service = hash_service.new
     @product_gateway = product_gateway.new
+    @config = config_service.new.get_config
   end
 
   def create_or_update(validated_auth)
@@ -50,6 +55,18 @@ class UserService
     result
   end
 
+  def get_all_with_pending_balance
+    @user_repository.get_all_with_pending_balance
+  end
+
+  def clear_pending_balance(user)
+    pending_balance = user.pending_balance
+    user.balance += pending_balance
+    user.pending_balance = 0
+
+    user.save
+  end
+
   def update(username, first_name, last_name, password)
     #TODO: update the DB - username is the identifier and cannot be changed
     raise 'User update not implemented'
@@ -57,10 +74,16 @@ class UserService
 
   def update_balance(user_id, amount)
     user = get_by_id user_id
-    user.balance += amount
+
+    # check if we're in-hours
+    current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+    (current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]) ?
+        user.pending_balance += amount :
+        user.balance += amount
+
     user.save
 
-    user.balance
+    {:pending_balance => user.pending_balance, :balance => user.balance}
   end
 
   def delete(username)

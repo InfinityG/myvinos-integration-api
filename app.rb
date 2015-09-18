@@ -13,6 +13,7 @@ require './api/routes/orders'
 require './api/routes/tokens'
 require './api/services/config_service'
 require './api/services/queue_processor_service'
+require './api/services/balance_processor_service'
 
 class ApiApp < Sinatra::Base
 
@@ -32,16 +33,17 @@ class ApiApp < Sinatra::Base
     register Sinatra::ProductRoutes
     register Sinatra::OrderRoutes
 
-    puts 'Starting queue processor service...'
+    puts 'Starting checkout queue processor service...'
     queue_service = QueueProcessorService.new
     queue_service.start
+
+    puts 'Starting pending balance processor service...'
+    balance_service = BalanceProcessorService.new
+    balance_service.start
   end
 
   #http://stackoverflow.com/questions/2362148/how-to-enable-ssl-for-a-standalone-sinatra-app
   def self.run!
-    # Signal.trap('INT') {
-    #   Rack::Handler::WEBrick.shutdown
-    # }
 
     options = ConfigurationService.new.get_server_config
 

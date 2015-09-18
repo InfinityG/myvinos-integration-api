@@ -127,10 +127,10 @@ class OrderService
   def create_vin_redemption_order(data, user)
 
     # check that we're in-hours
-    current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
-    if current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]
-      raise ApiError, OUT_OF_HOURS_ORDER_ERROR
-    end
+    # current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+    # if current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]
+    #   raise ApiError, OUT_OF_HOURS_ORDER_ERROR
+    # end
 
     parsed_products = parse_products(data, user.balance)
     local_order = create_local_order(user, parsed_products, data[:location])
