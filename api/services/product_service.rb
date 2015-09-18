@@ -1,4 +1,5 @@
 require './api/gateways/product_gateway'
+require './api/errors/api_error'
 require './api/constants/error_constants'
 require './api/mappers/product_mapper'
 require './api/mappers/category_mapper'
@@ -55,10 +56,5 @@ class ProductService
 
     @cache_repository.save_products(mapped_products, timeout)
   end
-
-  # def get_category_tree_for_product(category_id)
-  #   categories = @cache_repository.get_categories
-  #
-  # end
 
 end

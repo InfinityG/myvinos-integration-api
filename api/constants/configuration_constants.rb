@@ -35,7 +35,10 @@ module ConfigurationConstants
         :delivery_pickup_address => "111 Saint George's Mall, Cape Town, 8001",
         :delivery_pickup_coords => '-33.92421, 18.420020000000022',
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
-        :delivery_pickup_contact_phone => '0787860307'
+        :delivery_pickup_contact_phone => '0787860307',
+        :time_zone => 'Harare',
+        :trading_hours_start => 9,
+        :trading_hours_end => 18
     }
 
     TEST = {
@@ -71,7 +74,10 @@ module ConfigurationConstants
         :delivery_pickup_address => "111 Saint George's Mall, Cape Town, 8001",
         :delivery_pickup_coords => '-33.92421, 18.420020000000022',
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
-        :delivery_pickup_contact_phone => '0787860307'
+        :delivery_pickup_contact_phone => '0787860307',
+        :time_zone => 'Harare',
+        :trading_hours_start => 9,
+        :trading_hours_end => 18
     }
 
     PRODUCTION = {
@@ -107,7 +113,10 @@ module ConfigurationConstants
         :delivery_pickup_address => "111 Saint George's Mall, Cape Town, 8001",
         :delivery_pickup_coords => '-33.92421, 18.420020000000022',
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
-        :delivery_pickup_contact_phone => '0787860307'
+        :delivery_pickup_contact_phone => '0787860307',
+        :time_zone => 'Harare',
+        :trading_hours_start => 9,
+        :trading_hours_end => 18
     }
   end
 end
