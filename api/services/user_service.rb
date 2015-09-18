@@ -75,11 +75,15 @@ class UserService
   def update_balance(user_id, amount)
     user = get_by_id user_id
 
-    # check if we're in-hours
-    current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
-    (current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]) ?
-        user.pending_balance += amount :
-        user.balance += amount
+    if @config[:trading_hours_active]
+      # check if we're in-hours
+      current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+      (current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]) ?
+          user.pending_balance += amount :
+          user.balance += amount
+    else
+      user.balance += amount
+    end
 
     user.save
 

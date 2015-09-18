@@ -37,6 +37,7 @@ module ConfigurationConstants
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
         :delivery_pickup_contact_phone => '0787860307',
         :time_zone => 'Harare',
+        :trading_hours_active => false,
         :trading_hours_start => 8,
         :trading_hours_end => 18
     }
@@ -76,8 +77,9 @@ module ConfigurationConstants
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
         :delivery_pickup_contact_phone => '0787860307',
         :time_zone => 'Harare',
+        :trading_hours_active => false,
         :trading_hours_start => 8,
-        :trading_hours_end => 18
+        :trading_hours_end => 12
     }
 
     PRODUCTION = {
@@ -115,6 +117,7 @@ module ConfigurationConstants
         :delivery_pickup_contact_name => 'MyVinos Dispatch',
         :delivery_pickup_contact_phone => '0787860307',
         :time_zone => 'Harare',
+        :trading_hours_active => true,
         :trading_hours_start => 8,
         :trading_hours_end => 18
     }
