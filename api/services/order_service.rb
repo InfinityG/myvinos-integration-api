@@ -86,7 +86,8 @@ class OrderService
     {
         :id => order.id.to_s,
         :status => order.transaction.status,
-        :checkout_id => checkout_id
+        :checkout_id => checkout_id,
+        :checkout_uri => @config[:payment_widget_uri]
     }
 
   end
