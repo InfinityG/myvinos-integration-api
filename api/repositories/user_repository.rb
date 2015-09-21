@@ -22,7 +22,7 @@ class UserRepository
   end
 
   def get_all_with_pending_balance
-    User.where(:pending_balance.ne => 0).all
+    User.where(:$and => [{:pending_balance.ne => 0}, {:pending_balance.ne => nil}]).all
   end
 
   # only create the user if it doesn't already exist
