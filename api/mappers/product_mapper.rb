@@ -25,6 +25,7 @@ class ProductMapper
     grapes = nil
     style = nil
     region = nil
+    vintage = nil
     score_1 = nil
     score_2 = nil
     score_3 = nil
@@ -48,6 +49,7 @@ class ProductMapper
         region = attribute[:options][0] if attribute[:name].to_s.downcase == 'region'
         grapes = attribute[:options][0] if attribute[:name].to_s.downcase == 'grapes'
         style = attribute[:options][0] if attribute[:name].to_s.downcase == 'style'
+        vintage = attribute[:options][0] if attribute[:name].to_s.downcase == 'vintage'
 
       end
     end
@@ -74,6 +76,7 @@ class ProductMapper
             :style => style,
             :region => region,
             :producer => producer,
+            :vintage => vintage,
             :score_1 => score_1,
             :score_2 => score_2,
             :score_3 => score_3
