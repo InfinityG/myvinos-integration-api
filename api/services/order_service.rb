@@ -230,6 +230,8 @@ class OrderService
       id = product[:product_id]
       quantity = product[:quantity]
 
+      check_availability(id, quantity)
+
       cached_product = @product_service.get_product id
       raise ApiError, INVALID_PRODUCT if cached_product == nil
 
@@ -242,6 +244,14 @@ class OrderService
     end
 
     {:detailed_products => detailed_products_arr, :order_products => order_products_arr, :total => running_total}
+  end
+
+  def check_availability(id, quantity)
+    # check product count on 3rd party (note this is NOT mapped)
+    live_product = @product_service.get_live_product id
+    if live_product[:product][:stock_quantity] < quantity
+      raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}"
+    end
   end
 
   def send_checkout_id_request(amount)

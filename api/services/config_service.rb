@@ -21,18 +21,12 @@ class ConfigurationService
       when 'test'
         {
             :Host => TEST[:host],
-            :Port => TEST[:port],
-            # :SSLEnable => true,
-            # :SSLCertificate => OpenSSL::X509::Certificate.new(File.open(TEST[:ssl_cert_path]).read),
-            # :SSLPrivateKey => OpenSSL::PKey::RSA.new(File.open(TEST[:ssl_private_key_path]).read)
+            :Port => TEST[:port]
         }
       when 'production'
         {
             :Host => PRODUCTION[:host],
-            :Port => PRODUCTION[:port],
-            :SSLEnable => true,
-            :SSLCertificate => OpenSSL::X509::Certificate.new(File.open(PRODUCTION[:ssl_cert_path]).read),
-            :SSLPrivateKey => OpenSSL::PKey::RSA.new(File.open(PRODUCTION[:ssl_private_key_path]).read)
+            :Port => PRODUCTION[:port]
         }
       else
         {

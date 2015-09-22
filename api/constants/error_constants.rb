@@ -19,6 +19,7 @@ module ErrorConstants
     PRODUCT_NOT_IN_STOCK = 'Product is not in stock'
     INVALID_USERNAME = 'Invalid username'
     OUT_OF_HOURS_ORDER_ERROR = 'The order cannot be processed out of trading hours'
+    INSUFFICIENT_STOCK_QUANTITY = 'Insufficient stock quantity'
     # ORDER_CREATION_ERROR = 'Order creation error on third party'
 
   end
