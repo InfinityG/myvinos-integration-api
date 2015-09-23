@@ -249,7 +249,7 @@ class OrderService
   def check_availability(id, quantity)
     # check product count on 3rd party (note this is NOT mapped)
     live_product = @product_service.get_live_product id
-    if live_product[:product][:stock_quantity] < quantity
+    if live_product != nil && (live_product[:product][:stock_quantity].to_i < quantity)
       raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}"
     end
   end
