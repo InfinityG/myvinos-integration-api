@@ -228,7 +228,7 @@ class OrderService
 
     data[:products].each do |product|
       id = product[:product_id]
-      quantity = product[:quantity]
+      quantity = product[:quantity].to_i
 
       check_availability(id, quantity)
 
@@ -249,9 +249,10 @@ class OrderService
   def check_availability(id, quantity)
     # check product count on 3rd party (note this is NOT mapped)
     live_product = @product_service.get_live_product id
-    if live_product != nil && (live_product[:product][:stock_quantity].to_i < quantity)
-      raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}"
-    end
+    raise ApiError, PRODUCT_NOT_IN_STOCK if live_product == nil
+
+    live_quantity = live_product[:product][:stock_quantity].to_i
+    raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}" if live_quantity < quantity
   end
 
   def send_checkout_id_request(amount)
