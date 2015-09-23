@@ -14,7 +14,7 @@ module ErrorConstants
     THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL = 'Payment checkout id request failed'
     THIRD_PARTY_PAYMENT_CHECKOUT_STATUS_REQUEST_FAIL = 'Payment checkout status request failed'
     UNRECOGNISED_PAYMENT_TYPE = 'Unrecognised payment type'
-    INSUFFICIENT_VINOS = 'Insufficient VINOs for purchase'
+    INSUFFICIENT_VINOS = 'You do not have enough VINOS'
     INVALID_PRODUCT = 'Invalid product selected'
     PRODUCT_NOT_IN_STOCK = 'Product is not in stock'
     INVALID_USERNAME = 'Invalid username'
