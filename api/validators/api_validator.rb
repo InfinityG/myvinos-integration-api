@@ -46,6 +46,24 @@ class ApiValidator
         errors.push INVALID_QUANTITY unless GeneralValidator.validate_integer item[:quantity]
       end
 
+      if data[:type].to_s.downcase == 'vin_redemption'
+        if data[:location] == nil || data[:location][:address].to_s == ''
+          errors.push NO_LOCATION_FOUND
+        end
+
+        # address_word_arr = data[:location][:address].split(' ')
+        # address_word_arr.each do |word|
+        #   errors.push INVALID_ADDRESS unless GeneralValidator.validate_string_strict word
+        # end
+        #
+        # if data[:notes].to_s.length > 0
+        #   notes_word_arr = data[:notes].split(' ')
+        #   notes_word_arr.each do |word|
+        #     errors.push INVALID_NOTES unless GeneralValidator.validate_string_strict word
+        #   end
+        # end
+      end
+
       raise ValidationError, {:valid => false, :errors => errors}.to_json if errors.count > 0
     end
   end

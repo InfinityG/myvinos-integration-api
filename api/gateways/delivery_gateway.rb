@@ -27,6 +27,7 @@ class DeliveryGateway
         :dropoff_contact_name => "#{user[:first_name]} #{user[:last_name]}",
         :dropoff_contact_phone => order.delivery.mobile_number,
         :dropoff_coordinates => order.delivery.coordinates,
+        :dropoff_remarks => order.delivery.notes,
         :customer_identifier => user[:username]
     }
 

@@ -127,14 +127,8 @@ class OrderService
 
   def create_vin_redemption_order(data, user)
 
-    # check that we're in-hours
-    # current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
-    # if current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]
-    #   raise ApiError, OUT_OF_HOURS_ORDER_ERROR
-    # end
-
     parsed_products = parse_products(data, user.balance)
-    local_order = create_local_order(user, parsed_products, data[:location])
+    local_order = create_local_order(user, parsed_products, data[:location], data[:notes])
 
     # these operations all update fields on the local_order (by reference)
     create_third_party_order(local_order, user, parsed_products[:order_products])
@@ -157,19 +151,19 @@ class OrderService
 
   end
 
-  def create_local_order(user, parsed_products, location)
+  def create_local_order(user, parsed_products, location, notes)
     @order_repository.create_vin_redemption_order(user,
                                                   parsed_products[:total],
                                                   @config[:default_crypto_currency],
                                                   parsed_products[:detailed_products],
-                                                  location)
+                                                  location, notes)
   end
 
   def create_third_party_order(local_order, user, parsed_products)
     begin
       address = "#{local_order.delivery.address} (#{local_order.delivery.coordinates})"
       third_party_order = send_order_create_request(user, address, parsed_products)
-      local_order.external_order_id = third_party_order[:id]
+      local_order.external_order_id = third_party_order[:order][:id]
     rescue ApiError
       local_order.status = 'third party order creation failed'
       raise ApiError, THIRD_PARTY_ORDER_CREATION_ERROR
@@ -192,7 +186,7 @@ class OrderService
   def update_third_party_order_status(local_order)
     # update the order status on the 3rd party
     begin
-      send_order_update_request local_order.external_order_id, 'complete'
+      send_order_update_request local_order.external_order_id, 'processing'
       local_order.status = 'complete'
       local_order.transaction.status = 'complete'
     rescue ApiError

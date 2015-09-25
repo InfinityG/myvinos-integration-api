@@ -159,8 +159,14 @@ class ProductGateway
                 :method_title => 'VINOS',
                 :paid => true
             },
-            :billing_address => nil,
-            :shipping_address => {:address_1 => address},
+            :billing_address => {
+                :phone => user.mobile_number,
+            },
+            :shipping_address => {
+                :first_name => user.first_name,
+                :last_name => user.last_name,
+                :address_1 => address
+            },
             :customer_id => user.third_party_id,
             :line_items => products,
             :shipping_lines => [
@@ -170,7 +176,7 @@ class ProductGateway
                     :total => 0
                 }
             ],
-            :status => 'processing'
+            :status => 'pending'
         }
     }
 

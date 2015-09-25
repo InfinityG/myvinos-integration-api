@@ -27,6 +27,7 @@ module ErrorConstants
   module ValidationErrors
     NO_DATA_FOUND = 'No data found!'
     NO_PRODUCTS_FOUND = 'No products found!'
+    NO_LOCATION_FOUND = 'No location found!'
     INVALID_USER_ID = 'Invalid user id'
     INVALID_TYPE = 'Invalid type'
     INVALID_PRODUCT_ID = 'Invalid product id'
@@ -36,5 +37,7 @@ module ErrorConstants
     INVALID_FIRST_NAME = 'Invalid user first name'
     INVALID_LAST_NAME = 'Invalid user last name'
     INVALID_USERNAME = 'Invalid username'
+    INVALID_NOTES = 'Invalid characters in notes'
+    INVALID_ADDRESS = 'Invalid address'
   end
 end
