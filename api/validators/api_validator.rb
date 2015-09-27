@@ -35,7 +35,7 @@ class ApiValidator
       # errors.push INVALID_USER_ID unless GeneralValidator.validate_string_strict data[:user_id]
       # errors.push INVALID_TYPE unless GeneralValidator.validate_string data[:type]
 
-      if (! data[:type].to_s.downcase == 'vin_purchase') || (! data[:type].to_s.downcase == 'vin_redemption')
+      if (!data[:type].to_s.downcase == 'vin_purchase') || (!data[:type].to_s.downcase == 'vin_redemption')
         errors.push INVALID_TYPE
       end
 
@@ -47,21 +47,8 @@ class ApiValidator
       end
 
       if data[:type].to_s.downcase == 'vin_redemption'
-        if data[:location] == nil || data[:location][:address].to_s == ''
-          errors.push NO_LOCATION_FOUND
-        end
-
-        # address_word_arr = data[:location][:address].split(' ')
-        # address_word_arr.each do |word|
-        #   errors.push INVALID_ADDRESS unless GeneralValidator.validate_string_strict word
-        # end
-        #
-        # if data[:notes].to_s.length > 0
-        #   notes_word_arr = data[:notes].split(' ')
-        #   notes_word_arr.each do |word|
-        #     errors.push INVALID_NOTES unless GeneralValidator.validate_string_strict word
-        #   end
-        # end
+        errors.push NO_LOCATION_FOUND if data[:location] == nil || data[:location][:address].to_s == ''
+        errors.push INVALID_ADDRESS unless GeneralValidator.validate_address data[:location][:address]
       end
 
       raise ValidationError, {:valid => false, :errors => errors}.to_json if errors.count > 0
