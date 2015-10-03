@@ -3,6 +3,7 @@ module MyVinos
     class Product
       include MongoMapper::EmbeddedDocument
 
+      key :product_id, String
       key :product_type, String
       key :price, String
       key :currency, String

@@ -1,7 +1,7 @@
 module MyVinos
   module Models
     class Delivery
-      include MongoMapper::Document
+      include MongoMapper::EmbeddedDocument
 
       key :status, String
       key :address, String

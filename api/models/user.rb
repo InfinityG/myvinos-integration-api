@@ -10,6 +10,7 @@ module MyVinos
       key :last_name, String
       key :email, String
       key :mobile_number, String
+      key :meta, String
       key :balance, Integer
       key :pending_balance, Integer
 

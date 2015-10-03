@@ -61,7 +61,7 @@ class CacheRepository
     products = get_products
 
     products.each do |product|
-      return product if product.product_id == product_id.to_i
+      return product if product.product_id.to_s == product_id.to_s
     end if products != nil
 
     nil

@@ -29,6 +29,21 @@ class ProductService
 
     repopulate_products_cache
     @cache_repository.get_product(product_id)
+    end
+
+  def get_delivery_product
+    products = @cache_repository.get_products
+    result = nil
+
+    products.each do |product|
+
+      if product.product_type == 'Delivery'
+        result = product
+        break
+      end
+    end
+
+    result
   end
 
   def get_live_product(product_id)

@@ -44,7 +44,14 @@ class OrderService
   end
 
   def get_orders(user)
-    @order_repository.get_orders(user.id.to_s)
+    orders = @order_repository.get_orders(user.id.to_s)
+
+    # filter out abandoned transactions from history
+    orders.delete_if do |order|
+      order.transaction.status == 'abandoned'
+    end
+
+    orders
   end
 
   def create_order(user, data)
@@ -71,8 +78,16 @@ class OrderService
     # look up the products - in this case they should be one or more VINOs bundles, which should all have the same currency (ZAR)
     data[:products].each do |item|
       product = @product_service.get_product(item[:product_id])
+      raise ApiError, INVALID_PRODUCT if product == nil
+
       amount += (product.price.to_i * item[:quantity].to_i)
-      products << product
+
+      # save a simplified version of the product
+      products << {:product_id => product.product_id,
+                   :quantity => item[:quantity].to_i,
+                   :name => product.name,
+                   :description => product.description,
+                   :price => product.price}
     end
 
     converted_amount = RateUtil.convert_vin_to_fiat amount
@@ -102,7 +117,7 @@ class OrderService
     if (Time.now.to_i - creation_date.to_i) > @config[:purchase_order_timeout].to_i
       return {:status => 'abandoned'}
     end
-        # FOR POSSIBLE RESPONSE CODES:
+    # FOR POSSIBLE RESPONSE CODES:
     # http://support.peachpayments.com/hc/en-us/articles/205282107-Determine-Transaction-Status-from-Result-Code
     #http://support.peachpayments.com/hc/en-us/article_attachments/201425397/resultCodes.properties
 
@@ -155,7 +170,7 @@ class OrderService
     @order_repository.create_vin_redemption_order(user,
                                                   parsed_products[:total],
                                                   @config[:default_crypto_currency],
-                                                  parsed_products[:detailed_products],
+                                                  parsed_products[:order_products],
                                                   location, notes)
   end
 
@@ -200,6 +215,13 @@ class OrderService
     @user_service.update_balance user.id.to_s, -parsed_products[:total]
   end
 
+  #########################
+  # VINOS BONUS ORDERS
+  #########################
+  def create_vinos_bonus_order(data, user)
+    # TODO
+  end
+
   ###########
   # HELPERS
   ###########
@@ -217,7 +239,6 @@ class OrderService
 
   def parse_products(data, current_balance)
     running_total = 0
-    detailed_products_arr = []
     order_products_arr = []
 
     data[:products].each do |product|
@@ -233,11 +254,27 @@ class OrderService
       running_total += price
       raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
 
-      detailed_products_arr << cached_product
-      order_products_arr << {:product_id => id, :quantity => quantity}
+      order_products_arr << {:product_id => id,
+                             :quantity => quantity,
+                             :name => cached_product.name,
+                             :description => cached_product.description,
+                             :price => cached_product.price}
     end
 
-    {:detailed_products => detailed_products_arr, :order_products => order_products_arr, :total => running_total}
+    # orders below 30 VINOS incur 5 VINOS transport charge
+    if running_total < 30
+      delivery_product = @product_service.get_delivery_product
+      order_products_arr << {:product_id => delivery_product.product_id,
+                             :quantity => 1,
+                             :name => delivery_product.name,
+                             :description => delivery_product.description,
+                             :price => delivery_product.price}
+
+      running_total += delivery_product.price.to_i
+      raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
+    end
+
+    {:order_products => order_products_arr, :total => running_total}
   end
 
   def check_availability(id, quantity)
@@ -257,7 +294,7 @@ class OrderService
   def send_checkout_status_request(checkout_id)
     response = @payment_gateway.get_checkout_status(checkout_id)
     JSON.parse(response.response_body, :symbolize_names => true)
-    end
+  end
 
   def send_order_create_request(user, address, products_arr)
     order_response = @product_gateway.create_order user, address, products_arr

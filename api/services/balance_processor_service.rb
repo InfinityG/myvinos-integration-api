@@ -17,9 +17,13 @@ class BalanceProcessorService
         begin
 
           # check if we're in-hours
+          current_day = TimeUtil.get_current_day_in_zone config[:time_zone]
           current_hour = TimeUtil.get_current_hour_in_zone config[:time_zone]
 
-          if current_hour > config[:trading_hours_start] || current_hour < config[:trading_hours_end]
+          current_day_allowed = config[:trading_days].include? current_day
+          current_hour_allowed = (config[:trading_hours_start] < current_hour) && (config[:trading_hours_end] > current_hour)
+
+          if current_day_allowed && current_hour_allowed
 
             pending_items = user_service.get_all_with_pending_balance
 
@@ -35,7 +39,7 @@ class BalanceProcessorService
           log_service.log_error(e.message.to_json)
         end
 
-        sleep 5.seconds
+        sleep 60.seconds
       end
     }
   end

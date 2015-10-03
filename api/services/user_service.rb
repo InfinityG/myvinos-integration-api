@@ -31,13 +31,18 @@ class UserService
     last_name = validated_auth[:last_name]
     email = validated_auth[:email]
     mobile_number = validated_auth[:mobile_number]
+    meta = validated_auth[:meta]
 
     third_party_user_result = @product_gateway.create_user username, email, first_name, last_name, mobile_number
     new_external_user = JSON.parse(third_party_user_result.response_body, :symbolize_names => true)
     third_party_id = new_external_user[:customer][:id].to_s
+
     start_balance = @config[:signup_credit_enabled] ? @config[:default_signup_credit] : 0
 
-    @user_repository.create external_id, third_party_id, username, first_name, last_name, email, mobile_number, start_balance
+    @user_repository.create external_id, third_party_id, username, first_name, last_name, email, mobile_number, meta, start_balance
+
+    # create new vinos_bonus order type
+
 
   end
 
@@ -79,10 +84,14 @@ class UserService
 
     if @config[:trading_hours_active]
       # check if we're in-hours
+      current_day = TimeUtil.get_current_day_in_zone @config[:time_zone]
       current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
-      (current_hour < @config[:trading_hours_start] || current_hour > @config[:trading_hours_end]) ?
-          user.pending_balance += amount :
-          user.balance += amount
+
+      current_day_allowed = @config[:trading_days].include? current_day
+      current_hour_allowed = (@config[:trading_hours_start] < current_hour) && (@config[:trading_hours_end] > current_hour)
+
+      (current_day_allowed && current_hour_allowed) ? user.balance += amount : user.pending_balance += amount
+
     else
       user.balance += amount
     end
