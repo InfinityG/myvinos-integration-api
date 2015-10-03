@@ -32,7 +32,7 @@ class ProductMapper
 
     case product[:type].to_s.downcase
       when 'simple'
-        product_type = 'Wine'
+        (product[:tags].include? 'Delivery') ? product_type = 'Delivery' : product_type = 'Wine'
         currency = @config[:default_crypto_currency]
       when 'deposit'
         product_type = 'Top-up'
