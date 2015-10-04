@@ -29,6 +29,7 @@ class ProductMapper
     score_1 = nil
     score_2 = nil
     score_3 = nil
+    sort_index = 0
 
     case product[:type].to_s.downcase
       when 'simple'
@@ -47,7 +48,27 @@ class ProductMapper
 
         producer = attribute[:options][0] if attribute[:name].to_s.downcase == 'producer'
         region = attribute[:options][0] if attribute[:name].to_s.downcase == 'region'
-        grapes = attribute[:options][0] if attribute[:name].to_s.downcase == 'grapes'
+
+        if attribute[:name].to_s.downcase == 'grapes'
+          grapes = attribute[:options][0]
+
+          case grapes.to_s.downcase
+            when 'sparkling'
+              sort_index = 1
+            when 'white'
+              sort_index = 2
+            when 'rose'
+              sort_index = 3
+            when 'red'
+              sort_index = 4
+            when 'dessert'
+              sort_index = 5
+            else
+              sort_index = 6
+          end
+
+        end
+
         style = attribute[:options][0] if attribute[:name].to_s.downcase == 'style'
         vintage = attribute[:options][0] if attribute[:name].to_s.downcase == 'vintage'
 
@@ -81,7 +102,8 @@ class ProductMapper
             :score_2 => score_2,
             :score_3 => score_3
         },
-        :categories => categories
+        :categories => categories,
+        :sort_index_1 => sort_index
     }
   end
 

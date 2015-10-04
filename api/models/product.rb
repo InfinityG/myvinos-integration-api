@@ -12,6 +12,8 @@ module MyVinos
       key :image_url, String
       key :stock_quantity, Integer
       key :tags, Hash
+      key :sort_index_1, Integer
+      key :sort_index_2, Integer
 
       many :categories, :class_name => 'MyVinos::Models::Category'
     end

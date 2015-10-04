@@ -24,14 +24,19 @@ class CacheRepository
                                  :stock_quantity => product[:stock_quantity],
                                  :image_url => product[:image_url],
                                  :tags => product[:tags],
-                                 :categories => product[:categories])
+                                 :categories => product[:categories],
+                                 :sort_index_1 => product[:sort_index_1])
+
     end
+
+    product_arr.sort_by! { |product| [product[:sort_index_1], product[:price].to_i] }
 
     cache = Cache.first
 
     if cache != nil
       cache.products = product_arr
       cache.products_expiry = expires
+
       cache.save
     else
       cache = Cache.create(:products => product_arr, :products_expiry => expires)
