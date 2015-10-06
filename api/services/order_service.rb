@@ -190,7 +190,7 @@ class OrderService
       delivery = send_delivery_request user, local_order
       local_order.delivery.status = 'complete'
       local_order.delivery.external_id = delivery[:id]
-      local_order.delivery.time_estimate = delivery[:time_estimate]
+      local_order.delivery.time_estimate = (delivery[:time_estimate].to_i/60).to_s
       local_order.delivery.distance_estimate = delivery[:distance_estimate]
     rescue ApiError
       local_order.status = 'third party delivery creation failed'
