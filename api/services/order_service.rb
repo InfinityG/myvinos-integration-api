@@ -44,14 +44,7 @@ class OrderService
   end
 
   def get_orders(user)
-    orders = @order_repository.get_orders(user.id.to_s)
-
-    # filter out abandoned transactions from history
-    orders.delete_if do |order|
-      order.transaction.status == 'abandoned'
-    end
-
-    orders
+    @order_repository.get_non_abandoned_orders(user.id.to_s)
   end
 
   def create_order(user, data)
@@ -72,24 +65,9 @@ class OrderService
   ###################
 
   def create_vin_purchase_order(data, user)
-    amount = 0
     products = []
 
-    # look up the products - in this case they should be one or more VINOs bundles, which should all have the same currency (ZAR)
-    data[:products].each do |item|
-      product = @product_service.get_product(item[:product_id])
-      raise ApiError, INVALID_PRODUCT if product == nil
-
-      amount += (product.price.to_i * item[:quantity].to_i)
-
-      # save a simplified version of the product
-      products << {:product_id => product.product_id,
-                   :quantity => item[:quantity].to_i,
-                   :name => product.name,
-                   :description => product.description,
-                   :price => product.price}
-    end
-
+    amount = calculate_vin_purchase_amount(data, products)
     converted_amount = RateUtil.convert_vin_to_fiat amount
     checkout_id = create_checkout_id(converted_amount)
 
@@ -105,6 +83,26 @@ class OrderService
         :checkout_uri => @config[:payment_widget_uri]
     }
 
+  end
+
+  def calculate_vin_purchase_amount(data, products)
+    # look up the products - in this case they should be one or more VINOs bundles, which should all have the same currency (ZAR)
+    amount = 0
+
+    data[:products].each do |item|
+      product = @product_service.get_product(item[:product_id])
+      raise ApiError, INVALID_PRODUCT if product == nil
+
+      amount += (product.price.to_i * item[:quantity].to_i)
+
+      products << {:product_id => product.product_id,
+                   :quantity => item[:quantity].to_i,
+                   :name => product.name,
+                   :description => product.description,
+                   :price => product.price}
+    end
+
+    amount
   end
 
   def update_order_transaction(order_id, external_transaction_id, status)

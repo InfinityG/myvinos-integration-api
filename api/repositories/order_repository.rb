@@ -13,6 +13,10 @@ class OrderRepository
 
   def get_orders(user_id)
     Order.where(:user_id => user_id).all
+    end
+
+  def get_non_abandoned_orders(user_id)
+    Order.where(:user_id => user_id, 'transaction.status' => {:$ne => 'abandoned'}).all
   end
 
   def create_vin_purchase_order(user_id, checkout_id, amount, currency, products)
