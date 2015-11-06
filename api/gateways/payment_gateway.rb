@@ -14,7 +14,7 @@ class PaymentGateway
     @log_service = log_service.new
   end
 
-  def send_checkout_request(payment_type, amount, currency)
+  def send_checkout_request(stored_cards, payment_type, amount, currency)
     # see http://support.peachpayments.com/hc/en-us/articles/205160077-Authentication-IDs-for-REST-API
 
     # authentication.userId = USER LOGIN
@@ -32,8 +32,14 @@ class PaymentGateway
         'authentication.entityId' => entity_id,
         'paymentType' => payment_type,
         'amount' => amount,
-        'currency' => currency
+        'currency' => currency,
+        'createRegistration' => 'true'
     }
+
+    # stored cards
+    stored_cards.each_with_index do |card, index|
+      payload["registrations[#{index}].id"] = card.registration_id
+    end
 
     # SAMPLE RESPONSE:
     # {

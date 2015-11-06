@@ -1,5 +1,7 @@
 require './api/models/user'
+require './api/models/card'
 require './api/repositories/user_repository'
+require './api/repositories/card_repository'
 require './api/services/hash_service'
 require './api/gateways/product_gateway'
 require './api/constants/error_constants'
@@ -12,9 +14,11 @@ class UserService
   include ErrorConstants::ApiErrors
   include TimeUtil
 
-  def initialize(user_repository = UserRepository, hash_service = HashService, product_gateway = ProductGateway,
+  def initialize(user_repository = UserRepository, card_repository = CardRepository,
+                 hash_service = HashService, product_gateway = ProductGateway,
                  config_service = ConfigurationService)
     @user_repository = user_repository.new
+    @card_repository = card_repository.new
     @hash_service = hash_service.new
     @product_gateway = product_gateway.new
     @config = config_service.new.get_config
@@ -99,6 +103,25 @@ class UserService
     user.save
 
     {:pending_balance => user.pending_balance, :balance => user.balance}
+  end
+
+  def update_balance_with_card(user_id, amount, registration_id, card, card_default=true)
+
+    if registration_id != nil && card != nil
+
+      if @card_repository.get_card_by_registration_id(registration_id) == nil
+
+        @card_repository.create(user_id, registration_id,
+                                card[:last4Digits],
+                                card[:holder],
+                                card[:expiryMonth],
+                                card[:expiryYear],
+                                card_default)
+      end
+    end
+
+    update_balance(user_id, amount)
+
   end
 
   def delete(username)

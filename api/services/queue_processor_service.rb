@@ -44,7 +44,9 @@ class QueueProcessorService
 
               # credit the user's VIN balance - apply the conversion from ZAR to VIN
               amount = order.transaction.amount.to_i
-              user_service.update_balance(order.user_id, amount)
+
+              # update balance and add card to user cards list
+              user_service.update_balance_with_card(order.user_id, amount, status_result[:registration_id], status_result[:card])
 
               queue_service.delete_queue_item item.id
             end

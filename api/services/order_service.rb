@@ -7,6 +7,7 @@ require './api/services/user_service'
 require './api/services/delivery_service'
 require './api/gateways/product_gateway'
 require './api/repositories/order_repository'
+require './api/repositories/card_repository'
 require './api/gateways/payment_gateway'
 require './api/utils/time_util'
 # require './api/services/log_service'
@@ -25,14 +26,15 @@ class OrderService
       product_gateway = ProductGateway,
       payment_gateway = PaymentGateway,
       user_service = UserService,
+      card_repository = CardRepository,
       delivery_service = DeliveryService)
 
     new(config_service.new, order_repository.new, queue_service.new, product_service.new, product_gateway.new,
-        payment_gateway.new, user_service.new, delivery_service.new)
+        payment_gateway.new, user_service.new, delivery_service.new, card_repository.new)
   end
 
   def initialize(config_service, order_repository, queue_service, product_service, product_gateway, payment_gateway,
-                 user_service, delivery_service)
+                 user_service, delivery_service, card_repository)
     @config = config_service.get_config
     @queue_service = queue_service
     @product_service = product_service
@@ -41,6 +43,7 @@ class OrderService
     @payment_gateway = payment_gateway
     @user_service = user_service
     @delivery_service = delivery_service
+    @card_repository = card_repository
   end
 
   def get_orders(user)
@@ -69,7 +72,9 @@ class OrderService
 
     amount = calculate_vin_purchase_amount(data, products)
     converted_amount = RateUtil.convert_vin_to_fiat amount
-    checkout_id = create_checkout_id(converted_amount)
+
+    stored_cards = @card_repository.get_cards_for_user user.id.to_s
+    checkout_id = create_checkout_id(stored_cards, converted_amount)
 
     order = @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
                                                         @config[:default_fiat_currency], products)
@@ -128,7 +133,18 @@ class OrderService
     end
 
     if @config[:payment_success_codes].include? result_code.to_s
-      return {:status => 'success', :transaction_id => checkout_response[:id]}
+      transaction_id = checkout_response[:id]
+
+      # these fields will be returned if createRegistration=true
+      registration_id = checkout_response[:registrationId]
+      card = checkout_response[:card]
+
+      return {
+          :status => 'success',
+              :transaction_id => transaction_id,
+              :registration_id => registration_id,
+              :card => card
+      }
     end
 
     {:status => 'failure', :description => result_description}
@@ -224,9 +240,9 @@ class OrderService
   # HELPERS
   ###########
 
-  def create_checkout_id(amount)
+  def create_checkout_id(stored_cards, amount)
     checkout_id = nil
-    checkout_response = send_checkout_id_request amount
+    checkout_response = send_checkout_id_request stored_cards, amount
     result_code = checkout_response[:result][:code]
 
     # check the response codes against the success code list
@@ -284,8 +300,8 @@ class OrderService
     raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}" if live_quantity < quantity
   end
 
-  def send_checkout_id_request(amount)
-    response = @payment_gateway.send_checkout_request('DB', amount, @config[:default_fiat_currency])
+  def send_checkout_id_request(stored_cards, amount)
+    response = @payment_gateway.send_checkout_request(stored_cards, 'DB', amount, @config[:default_fiat_currency])
     JSON.parse(response.response_body, :symbolize_names => true)
   end
 

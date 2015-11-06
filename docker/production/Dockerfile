@@ -61,8 +61,7 @@ CMD ["/bin/bash"]
 
 # To build: sudo docker build -t infinityg/myvinos-integration-api:v1 .
 
-# To run (TEST): sudo docker run -p 8005:8005 -it --rm infinityg/myvinos-integration-api:v1
-# To run (PRODUCTION): sudo docker run -p 8005:8005 -e API_AUTH_TOKEN=******* -e SHARED_AES_KEY=******* -e ID_PROVIDER_PUBLIC_KEY=******* -e PRODUCT_API_KEY=******* -e PRODUCT_API_SECRET=******* -e PAYMENT_API_USER_ID=******* -e PAYMENT_API_PASSWORD=******* -e PAYMENT_API_ENTITY_ID=******* -e DELIVERY_API_KEY=******* -it --rm infinityg/myvinos-integration-api:v1
+# To run (PRODUCTION): sudo docker run -e API_AUTH_TOKEN=* -e SHARED_AES_KEY=* -e ID_PROVIDER_PUBLIC_KEY=* -e MONGO_DB=myvinos-db -e MONGO_REPLICATED=true -e MONGO_HOST_1=*:27017 -e MONGO_HOST_2=*:27017 -e MONGO_HOST_3=*:27017 -e PRODUCT_API_KEY=* -e PRODUCT_API_SECRET=* -e PAYMENT_API_USER_ID=* -e PAYMENT_API_PASSWORD=* -e PAYMENT_API_ENTITY_ID=* -e DELIVERY_API_KEY=* -p 8005:8005 -it --rm infinityg/myvinos-integration-api:v2
 
 # Inspect: sudo docker inspect [container_id]
 # Delete all containers: sudo docker rm $(docker ps -a -q)

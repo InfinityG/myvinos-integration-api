@@ -1,6 +1,7 @@
 require 'mongo_mapper'
 require 'bson'
 require './api/models/user'
+require './api/models/card'
 require './api/models/address'
 
 class UserRepository
