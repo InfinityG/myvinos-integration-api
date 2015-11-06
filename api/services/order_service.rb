@@ -275,8 +275,9 @@ class OrderService
                              :price => cached_product.price}
     end
 
-    # orders below 30 VINOS incur 5 VINOS transport charge
-    if running_total < 30
+    # delivery charges
+    if @config[:minimum_delivery_active] && running_total < @config[:minimum_delivery_amount]
+
       delivery_product = @product_service.get_delivery_product
       order_products_arr << {:product_id => delivery_product.product_id,
                              :quantity => 1,

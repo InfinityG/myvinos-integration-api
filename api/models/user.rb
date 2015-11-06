@@ -13,7 +13,7 @@ module MyVinos
       key :meta, String
       key :balance, Integer
       key :pending_balance, Integer
-      
+
       # many :addresses, :class_name => 'MyVinos::Models::Address'
       many :orders, :class_name => 'MyVinos::Models::Order'
 
