@@ -162,9 +162,9 @@ class OrderService
     local_order = create_local_order(user, parsed_products, data[:location], data[:notes])
 
     # these operations all update fields on the local_order (by reference)
-    # create_third_party_order(local_order, user, parsed_products[:order_products])
+    create_third_party_order(local_order, user, parsed_products[:order_products])
     create_delivery(local_order, user)
-    # update_third_party_order_status local_order
+    update_third_party_order_status local_order
 
     @order_repository.update_order local_order
     balance = update_balance user, parsed_products
