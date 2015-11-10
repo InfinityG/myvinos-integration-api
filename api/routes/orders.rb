@@ -10,7 +10,16 @@ module Sinatra
 
       app.post '/orders' do
 
-        data = JSON.parse(request.body.read, :symbolize_names => true)
+        body = request.body.read
+
+        config = ConfigurationService.new.get_config
+
+        if config[:force_ascii_conversion]
+          encoded = body.force_encoding('ISO-8859-1').encode!('UTF-8')
+          data = JSON.parse(encoded, :symbolize_names => true)
+        else
+          data = JSON.parse(body, :symbolize_names => true)
+        end
 
         begin
           ApiValidator.new.validate_order data
