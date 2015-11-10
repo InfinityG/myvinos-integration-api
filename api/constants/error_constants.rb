@@ -21,6 +21,7 @@ module ErrorConstants
     OUT_OF_HOURS_ORDER_ERROR = 'The order cannot be processed out of trading hours'
     INSUFFICIENT_STOCK_QUANTITY = 'Insufficient stock quantity'
     # ORDER_CREATION_ERROR = 'Order creation error on third party'
+    OUTSIDE_DELIVERY_HOURS_ERROR = 'VINOS cannot be redeemed outside delivery hours'
 
   end
 

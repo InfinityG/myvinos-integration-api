@@ -46,8 +46,11 @@ module ConfigurationConstants
         :time_zone => 'Harare',
         :trading_days => [1,2,3,4,5,6],
         :trading_hours_active => false,
-        :trading_hours_start => 8,
-        :trading_hours_end => 18
+        :trading_hours_start => 9,
+        :trading_hours_end => 18,
+        :delivery_hours_active => true,
+        :delivery_hours_start => 12,
+        :delivery_hours_end => 22
     }
 
     TEST = {
@@ -94,8 +97,11 @@ module ConfigurationConstants
         :time_zone => 'Harare',
         :trading_days => [1,2,3,4,5,6],
         :trading_hours_active => false,
-        :trading_hours_start => 8,
-        :trading_hours_end => 12
+        :trading_hours_start => 9,
+        :trading_hours_end => 18,
+        :delivery_hours_active => true,
+        :delivery_hours_start => 12,
+        :delivery_hours_end => 22
     }
 
     PRODUCTION = {
@@ -142,8 +148,11 @@ module ConfigurationConstants
         :time_zone => 'Harare',
         :trading_days => [1,2,3,4,5,6],
         :trading_hours_active => true,
-        :trading_hours_start => 8,
-        :trading_hours_end => 18
+        :trading_hours_start => 9,
+        :trading_hours_end => 18,
+        :delivery_hours_active => true,
+        :delivery_hours_start => 12,
+        :delivery_hours_end => 22
     }
   end
 end

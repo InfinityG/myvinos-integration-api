@@ -156,13 +156,15 @@ class OrderService
 
   def create_vin_redemption_order(data, user)
 
+    raise ApiError, OUTSIDE_DELIVERY_HOURS_ERROR unless confirm_within_delivery_hours
+
     parsed_products = parse_products(data, user.balance)
     local_order = create_local_order(user, parsed_products, data[:location], data[:notes])
 
     # these operations all update fields on the local_order (by reference)
-    create_third_party_order(local_order, user, parsed_products[:order_products])
+    # create_third_party_order(local_order, user, parsed_products[:order_products])
     create_delivery(local_order, user)
-    update_third_party_order_status local_order
+    # update_third_party_order_status local_order
 
     @order_repository.update_order local_order
     balance = update_balance user, parsed_products
@@ -178,6 +180,16 @@ class OrderService
         :balance => balance
     }
 
+  end
+
+  def confirm_within_delivery_hours
+
+    if @config[:delivery_hours_active]
+      current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+      return (@config[:delivery_hours_start] < current_hour) && (@config[:delivery_hours_end] > current_hour)
+    end
+
+    true
   end
 
   def create_local_order(user, parsed_products, location, notes)
