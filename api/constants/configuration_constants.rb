@@ -57,7 +57,7 @@ module ConfigurationConstants
     TEST = {
         :host => '0.0.0.0',
         :port => 8005,
-        :force_ascii_conversion => true,
+        :force_ascii_conversion => ENV['FORCE_ASCII_CONVERSION'],
         :api_auth_token => ENV['API_AUTH_TOKEN'],
         :shared_aes_key => ENV['SHARED_AES_KEY'],
         :id_provider_public_ecdsa_key => ENV['ID_PROVIDER_PUBLIC_KEY'],
@@ -109,7 +109,7 @@ module ConfigurationConstants
     PRODUCTION = {
         :host => '0.0.0.0',
         :port => 8005,
-        :force_ascii_conversion => true,
+        :force_ascii_conversion => ENV['FORCE_ASCII_CONVERSION'],
         :api_auth_token => ENV['API_AUTH_TOKEN'],
         :shared_aes_key => ENV['SHARED_AES_KEY'],
         :id_provider_public_ecdsa_key => ENV['ID_PROVIDER_PUBLIC_KEY'],
