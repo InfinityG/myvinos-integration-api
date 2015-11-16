@@ -37,8 +37,10 @@ class PaymentGateway
     }
 
     # stored cards
-    stored_cards.each_with_index do |card, index|
-      payload["registrations[#{index}].id"] = card.registration_id
+    if stored_cards != nil
+      stored_cards.each_with_index do |card, index|
+        payload["registrations[#{index}].id"] = card.registration_id
+      end
     end
 
     # SAMPLE RESPONSE:
