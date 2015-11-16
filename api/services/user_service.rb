@@ -110,6 +110,15 @@ class UserService
     {:pending_balance => user.pending_balance, :balance => user.balance}
   end
 
+  def update_balance_for_redemption(user_id, amount)
+    user = get_by_id user_id
+    user.balance += amount
+
+    user.save
+
+    {:pending_balance => user.pending_balance, :balance => user.balance}
+  end
+
   def update_balance_with_card(user_id, amount, registration_id, card, card_default=true)
 
     if registration_id != nil && card != nil

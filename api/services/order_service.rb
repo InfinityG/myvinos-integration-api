@@ -238,7 +238,7 @@ class OrderService
   end
 
   def update_balance(user, parsed_products)
-    @user_service.update_balance user.id.to_s, -parsed_products[:total]
+    @user_service.update_balance_for_redemption user.id.to_s, -parsed_products[:total]
   end
 
   #########################
