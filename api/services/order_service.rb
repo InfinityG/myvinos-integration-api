@@ -356,8 +356,9 @@ class OrderService
       cached_product = @product_service.get_product id
       raise ApiError, INVALID_PRODUCT if cached_product == nil
 
-      price = cached_product.price.to_i
+      price = (cached_product.price.to_i * quantity)
       running_total += price
+
       raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
 
       order_products_arr << {:product_id => id,
