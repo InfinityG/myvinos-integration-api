@@ -1,5 +1,6 @@
 require './api/errors/api_error'
 require './api/constants/error_constants'
+require './api/constants/api_constants'
 require './api/services/config_service'
 require './api/services/queue_service'
 require './api/services/product_service'
@@ -17,6 +18,7 @@ require './api/models/order'
 class OrderService
   # include LogService
   include ErrorConstants::ApiErrors
+  include ApiConstants
   include TimeUtil
 
   def self.build(config_service = ConfigurationService,
@@ -54,9 +56,11 @@ class OrderService
     type = data[:type]
 
     case type
-      when 'vin_purchase'
+      when VIN_PURCHASE_TYPE
         return create_vin_purchase_order(data, user)
-      when 'vin_redemption'
+      when MEMBERSHIP_PURCHASE_TYPE
+        return create_mem_purchase_order(data, user)
+      when VIN_REDEMPTION_TYPE
         return create_vin_redemption_order(data, user)
       else
         raise ApiError, UNRECOGNISED_PAYMENT_TYPE
@@ -74,7 +78,7 @@ class OrderService
     converted_amount = RateUtil.convert_vin_to_fiat amount
 
     stored_cards = @card_repository.get_cards_for_user user.id.to_s
-    checkout_id = create_checkout_id(stored_cards, converted_amount)
+    checkout_id = create_checkout_id(stored_cards, converted_amount, true)
 
     order = @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
                                                         @config[:default_fiat_currency], products)
@@ -90,6 +94,67 @@ class OrderService
 
   end
 
+  def create_mem_purchase_order(data, user)
+    products = []
+
+    amount = calculate_vin_purchase_amount(data, products)
+
+    # check if the user's current balance is within the limit for the membership
+    payment_required = user.balance < amount
+    # payment_required = true
+
+    if payment_required
+      converted_amount = RateUtil.convert_vin_to_fiat amount
+      stored_cards = @card_repository.get_cards_for_user user.id.to_s
+
+      checkout_id = create_checkout_id(stored_cards, converted_amount, true)
+      checkout_uri = @config[:payment_widget_uri]
+
+      order = @order_repository.create_mem_purchase_order(user.id.to_s, checkout_id, nil, amount,
+                                                          @config[:default_fiat_currency], products,
+                                                          PAYMENT_STATUS_PENDING, USER_INITIATED_PAYMENT_MEMO)
+
+      @queue_service.add_item_to_queue order.id, checkout_id
+
+      ################################################################################
+      # ABSTRACT THE FOLLOWING INTO THE VINOS_REDEMPTION ORDER PROCESS
+      ################################################################################
+      # if there are no stored cards, then initiate a checkout id request
+      # if stored_cards.length == 0
+      #
+      # else
+      #   # if there is a stored card, then we want to use this to create an automatic top-up (recurring payment)
+      #   default_card = stored_cards.find do |stored_card|
+      #     stored_card.default
+      #   end
+      #
+      #   # send the recurring payment
+      #   payment_id = create_recurring_payment_id default_card, converted_amount
+      #
+      #   order = @order_repository.create_mem_purchase_order(user.id.to_s, nil, payment_id, amount,
+      #                                                       @config[:default_fiat_currency], products,
+      #                                                       PAYMENT_STATUS_COMPLETE, RECURRING_PAYMENT_MEMO)
+      # end
+
+    else
+      # no payment required - create the order with the transaction
+      checkout_id = nil
+      checkout_uri = nil
+      order = @order_repository.create_mem_purchase_order(user.id.to_s, nil, nil, amount,
+                                                          @config[:default_fiat_currency], products,
+                                                          PAYMENT_STATUS_COMPLETE, NO_PAYMENT_REQUIRED_MEMO)
+      # TODO: set the membership type on the user
+    end
+
+    {
+        :id => order.id.to_s,
+        :status => order.transaction.status,
+        :checkout_id => checkout_id,
+        :checkout_uri => checkout_uri
+    }
+
+  end
+
   def calculate_vin_purchase_amount(data, products)
     # look up the products - in this case they should be one or more VINOs bundles, which should all have the same currency (ZAR)
     amount = 0
@@ -97,6 +162,10 @@ class OrderService
     data[:products].each do |item|
       product = @product_service.get_product(item[:product_id])
       raise ApiError, INVALID_PRODUCT if product == nil
+
+      if product.product_type != TOP_UP_PRODUCT_TYPE && product.product_type != MEMBERSHIP_PRODUCT_TYPE
+        raise ApiError, INVALID_TOP_UP_OR_MEMBERSHIP_PRODUCT
+      end
 
       amount += (product.price.to_i * item[:quantity].to_i)
 
@@ -141,9 +210,9 @@ class OrderService
 
       return {
           :status => 'success',
-              :transaction_id => transaction_id,
-              :registration_id => registration_id,
-              :card => card
+          :transaction_id => transaction_id,
+          :registration_id => registration_id,
+          :card => card
       }
     end
 
@@ -252,15 +321,26 @@ class OrderService
   # HELPERS
   ###########
 
-  def create_checkout_id(stored_cards, amount)
+  def create_checkout_id(stored_cards, amount, init_recurring)
     checkout_id = nil
-    checkout_response = send_checkout_id_request stored_cards, amount
+    checkout_response = send_checkout_id_request stored_cards, amount, init_recurring
     result_code = checkout_response[:result][:code]
 
     # check the response codes against the success code list
     checkout_id = checkout_response[:id] if @config[:payment_pending_codes].include? result_code.to_s
 
     checkout_id
+    end
+
+  def create_recurring_payment_id(default_card, amount)
+    recurring_payment_id = nil
+    payment_response = send_recurring_payment_request default_card, amount
+    result_code = payment_response[:result][:code]
+
+    # check the response codes against the success code list
+    recurring_payment_id = payment_response[:id] if @config[:payment_success_codes].include? result_code.to_s
+
+    recurring_payment_id
   end
 
   def parse_products(data, current_balance)
@@ -313,13 +393,18 @@ class OrderService
     raise ApiError, "#{INSUFFICIENT_STOCK_QUANTITY} for #{live_product[:product][:title]}" if live_quantity < quantity
   end
 
-  def send_checkout_id_request(stored_cards, amount)
-    response = @payment_gateway.send_checkout_request(stored_cards, 'DB', amount, @config[:default_fiat_currency])
+  def send_checkout_id_request(stored_cards, amount, init_recurring)
+    response = @payment_gateway.send_checkout_request(stored_cards, 'DB', amount, @config[:default_fiat_currency], init_recurring)
     JSON.parse(response.response_body, :symbolize_names => true)
   end
 
   def send_checkout_status_request(checkout_id)
     response = @payment_gateway.get_checkout_status(checkout_id)
+    JSON.parse(response.response_body, :symbolize_names => true)
+  end
+
+  def send_recurring_payment_request(card, amount)
+    response = @payment_gateway.send_recurring_payment_request(card, 'DB', amount, @config[:default_fiat_currency])
     JSON.parse(response.response_body, :symbolize_names => true)
   end
 

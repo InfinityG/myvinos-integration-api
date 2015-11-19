@@ -14,7 +14,7 @@ class PaymentGateway
     @log_service = log_service.new
   end
 
-  def send_checkout_request(stored_cards, payment_type, amount, currency)
+  def send_checkout_request(stored_cards, payment_type, amount, currency, init_recurring)
     # see http://support.peachpayments.com/hc/en-us/articles/205160077-Authentication-IDs-for-REST-API
 
     # authentication.userId = USER LOGIN
@@ -33,8 +33,11 @@ class PaymentGateway
         'paymentType' => payment_type,
         'amount' => amount,
         'currency' => currency,
-        'createRegistration' => 'true'
+        'createRegistration' => 'true',
+        'recurringType' => 'INITIAL'
     }
+
+    payload['recurringType'] = 'INITIAL' if init_recurring
 
     # stored cards
     if stored_cards != nil
@@ -67,6 +70,54 @@ class PaymentGateway
       return response
     rescue RestClient::Exception => e
       message = "#{THIRD_PARTY_PAYMENT_CHECKOUT_ID_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
+      @log_service.log_error message
+      raise ApiError, message
+    end
+  end
+
+  def send_recurring_payment_request(default_card, payment_type, amount, currency)
+
+    default_card_reg_id = default_card.registration_id
+
+    uri = "#{@config[:payment_api_uri]}/registrations/#{default_card_reg_id}/payments"
+    user_id = @config[:payment_api_user_id]
+    password = @config[:payment_api_password]
+    entity_id = @config[:payment_api_entity_id]
+
+    payload = {
+        'authentication.userId' => user_id,
+        'authentication.password' => password,
+        'authentication.entityId' => entity_id,
+        'paymentType' => payment_type,
+        'amount' => amount,
+        'currency' => currency,
+        'recurringType' => 'REPEATED'
+    }
+
+    # SAMPLE RESPONSE:
+    # {
+    #     "result": {
+    #         "code": "000.200.100",
+    #         "description": "successfully created checkout"
+    #     },
+    #     "buildNumber": "20150731-144831.r187089.opp-tags-20150806_lr",
+    #     "timestamp": "2015-08-05 11:57:38+0000",
+    #     "ndc": "942ABEAAD1F6C7C3E5A72E4FA4FB66D3.sbg-vm-tx02",
+    #     "id": "942ABEAAD1F6C7C3E5A72E4FA4FB66D3.sbg-vm-tx02"
+    # }
+
+    begin
+      response = @rest_util.execute_form_post(uri, nil, payload)
+
+      if response.response_code != 200
+        message = "#{THIRD_PARTY_REPEATED_PAYMENT_REQUEST_FAIL} | Response code: #{response.response_code}"
+        @log_service.log_error message
+        raise ApiError, message
+      end
+
+      return response
+    rescue RestClient::Exception => e
+      message = "#{THIRD_PARTY_REPEATED_PAYMENT_REQUEST_FAIL}: #{e.http_code} | #{e.http_body}"
       @log_service.log_error message
       raise ApiError, message
     end

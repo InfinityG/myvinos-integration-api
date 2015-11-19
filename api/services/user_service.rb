@@ -8,11 +8,13 @@ require './api/constants/error_constants'
 require './api/errors/api_error'
 require './api/utils/time_util'
 require './api/services/config_service'
+require './api/constants/api_constants'
 
 class UserService
 
   include ErrorConstants::ApiErrors
   include TimeUtil
+  include ApiConstants::MembershipConstants
 
   def initialize(user_repository = UserRepository, card_repository = CardRepository,
                  hash_service = HashService, product_gateway = ProductGateway,
@@ -41,6 +43,7 @@ class UserService
     new_external_user = JSON.parse(third_party_user_result.response_body, :symbolize_names => true)
     third_party_id = new_external_user[:customer][:id].to_s
 
+    #TODO: create a new order for credit
     start_balance = @config[:signup_credit_enabled] ? @config[:default_signup_credit] : 0
 
     @user_repository.create external_id, third_party_id, username, first_name, last_name, email, mobile_number, meta, start_balance
@@ -63,12 +66,30 @@ class UserService
     result = @user_repository.get_by_username username.to_s.downcase
 
     if user != nil
-      if (result != nil && result.username != username.to_s.downcase)
+      # make sure that the current user is calling up his own details
+      if (result != nil && result.username != user.username.to_s.downcase)
         raise ApiError, INVALID_USERNAME
       end
     end
 
     result
+  end
+
+  def get_by_username_with_cards(username, user = nil)
+    result = get_by_username username, user
+    result_json = JSON.parse(result.to_json, :symbolize_names => true)
+
+    # get any cards associated with this user, and add to the user result
+    cards = @card_repository.get_cards_for_user_redacted result.id.to_s
+    cards_json = JSON.parse(cards.to_json, :symbolize_names => true)
+
+    if result_json[:membership_type] == nil
+      result_json[:membership_type] = MEMBERSHIP_TYPE_BASIC
+    end
+
+    (cards == nil) ? result_json[:cards] = [] : result_json[:cards] = cards_json
+
+    result_json
   end
 
   def get_all_with_pending_balance
@@ -119,19 +140,15 @@ class UserService
     {:pending_balance => user.pending_balance, :balance => user.balance}
   end
 
-  def update_balance_with_card(user_id, amount, registration_id, card, card_default=true)
+  def update_balance_with_card(user_id, amount, registration_id, card)
 
     if registration_id != nil && card != nil
-
-      if @card_repository.get_card_by_registration_id(registration_id) == nil
-
-        @card_repository.create(user_id, registration_id,
-                                card[:last4Digits],
-                                card[:holder],
-                                card[:expiryMonth],
-                                card[:expiryYear],
-                                card_default)
-      end
+      # this automatically sets the current card as the default
+      @card_repository.set_card_for_user(user_id, registration_id,
+                                         card[:last4Digits],
+                                         card[:holder],
+                                         card[:expiryMonth],
+                                         card[:expiryYear])
     end
 
     update_balance(user_id, amount)

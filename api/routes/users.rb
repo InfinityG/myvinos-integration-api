@@ -15,7 +15,8 @@ module Sinatra
         begin
           username = params[:username]
           user_service = UserService.new
-          user = user_service.get_by_username(username, @current_user)
+          user = user_service.get_by_username_with_cards(username, @current_user)
+          # user = user_service.get_by_username(username, @current_user)
           user.to_json
         rescue ApiError => e
           status 500

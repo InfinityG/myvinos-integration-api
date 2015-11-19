@@ -35,7 +35,8 @@ class ApiValidator
       # errors.push INVALID_USER_ID unless GeneralValidator.validate_string_strict data[:user_id]
       # errors.push INVALID_TYPE unless GeneralValidator.validate_string data[:type]
 
-      if (!data[:type].to_s.downcase == 'vin_purchase') || (!data[:type].to_s.downcase == 'vin_redemption')
+      if (!data[:type].to_s.downcase == 'vin_purchase') || (!data[:type].to_s.downcase == 'vin_redemption') ||
+          (!data[:type].to_s.downcase == 'mem_purchase')
         errors.push INVALID_TYPE
       end
 

@@ -1,7 +1,10 @@
+require './api/constants/api_constants'
 require './api/services/config_service'
 require './api/mappers/category_mapper'
 
 class ProductMapper
+
+  include ApiConstants
 
   def initialize(config_service = ConfigurationService, category_mapper = CategoryMapper)
     @config = config_service.new.get_config
@@ -33,10 +36,11 @@ class ProductMapper
 
     case product[:type].to_s.downcase
       when 'simple'
-        (product[:tags].include? 'Delivery') ? product_type = 'Delivery' : product_type = 'Wine'
+        (product[:tags].include? 'Delivery') ? product_type = DELIVERY_PRODUCT_TYPE : product_type = WINE_PRODUCT_TYPE
         currency = @config[:default_crypto_currency]
       when 'deposit'
-        product_type = 'Top-up'
+        # product_type = TOP_UP_PRODUCT_TYPE
+        (product[:tags].include? 'Membership') ? product_type = MEMBERSHIP_PRODUCT_TYPE : product_type = TOP_UP_PRODUCT_TYPE
         currency = @config[:default_fiat_currency]
       else
         product_type = product[:type]

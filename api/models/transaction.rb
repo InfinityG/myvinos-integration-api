@@ -9,6 +9,7 @@ module MyVinos
       key :amount, String
       key :currency, String
       key :status, String
+      key :memo, String
 
       timestamps!
 

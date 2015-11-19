@@ -11,6 +11,7 @@ module MyVinos
       key :expiry_month, Integer
       key :expiry_year, Integer
       key :default, Boolean
+      # key :recurring, Boolean
 
       timestamps!
 
