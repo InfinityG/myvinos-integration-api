@@ -14,6 +14,7 @@ class UserService
 
   include ErrorConstants::ApiErrors
   include TimeUtil
+  include ApiConstants
   include ApiConstants::MembershipConstants
 
   def initialize(user_repository = UserRepository, card_repository = CardRepository,
@@ -83,9 +84,7 @@ class UserService
     cards = @card_repository.get_cards_for_user_redacted result.id.to_s
     cards_json = JSON.parse(cards.to_json, :symbolize_names => true)
 
-    if result_json[:membership_type] == nil
-      result_json[:membership_type] = MEMBERSHIP_TYPE_BASIC
-    end
+    result_json[:membership_type] = MEMBERSHIP_TYPE_BASIC if result_json[:membership_type] == nil
 
     (cards == nil) ? result_json[:cards] = [] : result_json[:cards] = cards_json
 
@@ -109,50 +108,82 @@ class UserService
     raise 'User update not implemented'
   end
 
-  def update_balance(user_id, amount)
+  def update_balance(user_id, order_type, products, amount)
     user = get_by_id user_id
 
-    if @config[:trading_hours_active]
-      # check if we're in-hours
-      current_day = TimeUtil.get_current_day_in_zone @config[:time_zone]
-      current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+    # if a membership type, then bypass the trading hours restriction
+    if order_type == MEMBERSHIP_PURCHASE_TYPE
 
-      current_day_allowed = @config[:trading_days].include? current_day
-      current_hour_allowed = (@config[:trading_hours_start] < current_hour) && (@config[:trading_hours_end] > current_hour)
+      membership_type = MEMBERSHIP_TYPES.find do |type|
+         type if products[0].name.downcase.include? type
+      end
 
-      (current_day_allowed && current_hour_allowed) ? user.balance += amount : user.pending_balance += amount
-
+      new_balance = user.balance + amount
+      @user_repository.update_balance_and_membership_type user_id, new_balance, membership_type
     else
-      user.balance += amount
+      if @config[:trading_hours_active]
+
+        # in-hours?
+        if confirm_in_hours
+          new_balance = user.balance + amount
+          @user_repository.update_balance user_id, new_balance
+          # user.balance += amount
+        else
+          # user.pending_balance += amount
+          new_balance = user.pending_balance + amount
+          @user_repository.update_pending_balance user_id, new_balance
+        end
+
+      else
+        # user.balance += amount
+        new_balance = user.balance + amount
+        @user_repository.update_balance user_id, new_balance
+      end
     end
 
-    user.save
+    # user.save
 
     {:pending_balance => user.pending_balance, :balance => user.balance}
+  end
+
+  def confirm_in_hours
+    current_day = TimeUtil.get_current_day_in_zone @config[:time_zone]
+    current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
+
+    current_day_allowed = @config[:trading_days].include? current_day
+    current_hour_allowed = (@config[:trading_hours_start] < current_hour) && (@config[:trading_hours_end] > current_hour)
+
+    current_day_allowed && current_hour_allowed
   end
 
   def update_balance_for_redemption(user_id, amount)
     user = get_by_id user_id
-    user.balance += amount
+    # user.balance += amount
+    # user.save
 
-    user.save
+    new_balance = user.balance + amount
+    @user_repository.update_balance user_id, new_balance
 
-    {:pending_balance => user.pending_balance, :balance => user.balance}
+    {:pending_balance => user.pending_balance, :balance => new_balance}
   end
 
-  def update_balance_with_card(user_id, amount, registration_id, card)
+  def update_balance_with_card(order, amount, registration_id, card)
 
     if registration_id != nil && card != nil
       # this automatically sets the current card as the default
-      @card_repository.set_card_for_user(user_id, registration_id,
+      @card_repository.set_card_for_user(order.user_id, registration_id,
                                          card[:last4Digits],
                                          card[:holder],
                                          card[:expiryMonth],
                                          card[:expiryYear])
     end
 
-    update_balance(user_id, amount)
+    update_balance(order.user_id, order.type, order.products, amount)
 
+  end
+
+  def update_membership(user_id, membership)
+    @user_repository.update_membership_type user_id, membership
   end
 
   def delete(username)

@@ -24,6 +24,8 @@ module ErrorConstants
     INSUFFICIENT_STOCK_QUANTITY = 'Insufficient stock quantity'
     # ORDER_CREATION_ERROR = 'Order creation error on third party'
     OUTSIDE_DELIVERY_HOURS_ERROR = 'VINOS cannot be redeemed outside delivery hours'
+    MEMBERSHIP_QUANTITY_ERROR = 'Only one membership product can be selected'
+    MEMBERSHIP_TYPE_NOT_FOUND = 'Membership type not found'
 
   end
 

@@ -46,7 +46,10 @@ class QueueProcessorService
               amount = order.transaction.amount.to_i
 
               # update balance and add card to user cards list
-              user_service.update_balance_with_card(order.user_id, amount, status_result[:registration_id], status_result[:card])
+              user_service.update_balance_with_card(order,
+                                                    amount,
+                                                    status_result[:registration_id],
+                                                    status_result[:card])
 
               queue_service.delete_queue_item item.id
             end

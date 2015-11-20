@@ -19,6 +19,7 @@ class OrderService
   # include LogService
   include ErrorConstants::ApiErrors
   include ApiConstants
+  include ApiConstants::MembershipConstants
   include TimeUtil
 
   def self.build(config_service = ConfigurationService,
@@ -97,6 +98,7 @@ class OrderService
   def create_mem_purchase_order(data, user)
     products = []
 
+    membership_type = get_membership_type data
     amount = calculate_vin_purchase_amount(data, products)
 
     # check if the user's current balance is within the limit for the membership
@@ -114,6 +116,7 @@ class OrderService
                                                           @config[:default_fiat_currency], products,
                                                           PAYMENT_STATUS_PENDING, USER_INITIATED_PAYMENT_MEMO)
 
+      # add the item to the queue - when this is processed then the membership will be updated
       @queue_service.add_item_to_queue order.id, checkout_id
 
       ################################################################################
@@ -143,7 +146,8 @@ class OrderService
       order = @order_repository.create_mem_purchase_order(user.id.to_s, nil, nil, amount,
                                                           @config[:default_fiat_currency], products,
                                                           PAYMENT_STATUS_COMPLETE, NO_PAYMENT_REQUIRED_MEMO)
-      # TODO: set the membership type on the user
+
+      @user_service.update_membership user.id.to_s, membership_type
     end
 
     {
@@ -153,6 +157,21 @@ class OrderService
         :checkout_uri => checkout_uri
     }
 
+  end
+
+  def get_membership_type(data)
+    raise ApiError, MEMBERSHIP_QUANTITY_ERROR if data[:products].length > 1
+
+    product_id = data[:products][0][:product_id]
+    cached_product = @product_service.get_product product_id
+
+    membership_type = MEMBERSHIP_TYPES.find do |type|
+      return type if cached_product.name.to_s.downcase.include? type
+    end
+
+    raise ApiError, MEMBERSHIP_TYPE_NOT_FOUND if membership_type == nil
+
+    membership_type
   end
 
   def calculate_vin_purchase_amount(data, products)
@@ -356,6 +375,7 @@ class OrderService
       cached_product = @product_service.get_product id
       raise ApiError, INVALID_PRODUCT if cached_product == nil
 
+      # HOTFIX on 17/11/2015 (price now being multiplied by quantity):
       price = (cached_product.price.to_i * quantity)
       running_total += price
 

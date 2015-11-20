@@ -36,6 +36,22 @@ class UserRepository
     end
   end
 
+  def update_balance(user_id, balance)
+    User.set({:id => user_id}, :balance => balance)
+  end
+
+  def update_pending_balance(user_id, pending_balance)
+    User.set({:id => user_id}, :pending_balance => pending_balance)
+  end
+
+  def update_balance_and_membership_type(user_id, balance, membership_type)
+    User.set({:id => user_id}, :balance => balance, :membership_type => membership_type)
+    end
+
+  def update_membership_type(user_id, membership_type)
+    User.set({:id => user_id}, :membership_type => membership_type)
+  end
+
   # def update(username, first_name = '', last_name = '', email = '', balance = 0,
   #                         billing_address = nil, shipping_address = nil)
   #
