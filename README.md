@@ -71,16 +71,16 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 
 ### MyVinos API
 
-| Operation                              | Description                                                                                                  | Endpoint                | Headers                | Request | Response |
-|----------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------------|------------------------|---------|----------|
-| Get products                           | Gets the list of products                                                                                    | /products [GET]         | none                   |         | [sample](#get-products)         |
-| Create access token                    | Creates an access token                                                                                      | /tokens  [POST]         | none                   |         |          |
-| Create an order to purchase VINOS      | Create an order to purchase VINOS credits                                                                    | /orders [POST]          | Authorization:[token]  |         |          |
-| Create an order to purchase membership | Create an order to purchase a membership                                                                     | /orders [POST]          | Authorization:[token]  |         |          |
-| Create an order to redeem VINOS        | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /orders [POST]          | Authorization: [token] |         |          |
-| Get user details                       | Get the details for a particular user                                                                        | /users/{username} [GET] | Authorization: [token] |         |          |
+| Operation                              | Description                                                                                                  | Endpoint                | Headers                | Samples |
+|----------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------------|------------------------|---------|
+| Get products                           | Gets the list of products                                                                                    | /products [GET]         | none                   |[sample](#-get-products)         |
+| Create access token                    | Creates an access token                                                                                      | /tokens  [POST]         | none                   |[sample](#-create-access-token)|
+| Create an order to purchase VINOS      | Create an order to purchase VINOS credits                                                                    | /orders [POST]          | Authorization:[token]  |[sample](#-create-an-order-to-purchase-vinos)|
+| Create an order to purchase membership | Create an order to purchase a membership                                                                     | /orders [POST]          | Authorization:[token]  |[sample](#-create-an-order-to-purchase-membership)|
+| Create an order to redeem VINOS        | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /orders [POST]          | Authorization: [token] |[sample](#-create-an-order-to-redeem-vinos-for-physical-products)|
+| Get user details                       | Get the details for a particular user                                                                        | /users/{username} [GET] | Authorization: [token] |[sample](#-get-user-details)|
 
-#### <a name="get-products"> Get products
+#### Get products
 
 Uri: ```/products```
 
@@ -311,5 +311,31 @@ __Sample response:__
         "time_estimate": 520
     },
     "balance": "120"
+}
+```
+
+#### Get user details
+
+
+Uri: ```/users/{username}```
+
+Method: GET
+Headers: Authorization: [token]
+
+__Sample response:__
+
+```
+{
+    "id": "",
+    "external_id": "",
+    "third_party_id": "",
+    "username": "johnny_mnemonic@test.com",
+    "first_name": "Johnny",
+    "last_name": "Mnemonic",
+    "email": "johnny_mnemonic@test.com",
+    "balance": "75",
+    "pending_balance":"0",
+    "membership_type":"basic",
+    "cards":[]
 }
 ```
