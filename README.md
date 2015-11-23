@@ -31,7 +31,10 @@ be purchased, and physical wine stock redeemed at a later stage for these credit
     running in an external cluster, and is set up separately.
  
 ## Live environment and topology
-Currently, the live environment is set up as follows:
+Currently, the live environment is set up in Amazon AWS, via the EC2 dashboard. No automated deployment scripts have yet been 
+ created. Access to these instances must be made via SSH, and require the relevant SSH keys. 
+ 
+ The list of instances are as follows:
 
 | Name            | EC2 Name              | Instance type | Subnet  | Description                                                                                                                                 |
 |-----------------|-----------------------|---------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------|
@@ -40,8 +43,8 @@ Currently, the live environment is set up as follows:
 | Proxy           | IGPROD-PROXY          | t2.micro      | public  | Runs nginx to allow routing, port mapping and request throttling to private subnet                                                          |
 | Docker server   | IGPROD-DOCKER-MYVINOS | t2.small      | private | The instance that Docker is installed on. Images and containers are installed and run from here                                             |
 | Mongo primary   | IGPROD-MONGO-1        | t2.small      | private | Mongo is installed on this - this is the primary server. The database and journal lives on an attached volume (see below)                   |
-| Mongo secondary | IGPROD-MONGO-2        | t2.small      | private | Mongo is installed on this - this is the primary server. The database and journal lives on an attached volume (see below)                   |
-| Mongo secondary | IGPROD-MONGO3         | t2.small      | private | Mongo is installed on this - this is the primary server. The database and journal lives on an attached volume (see below)                   |
+| Mongo secondary | IGPROD-MONGO-2        | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
+| Mongo secondary | IGPROD-MONGO3         | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
 | Mongo volume 1  | IG-DATA-VOLUME-1      | 50GB volume   |         | Attached to IG-PROD-MONGO-1. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
 | Mongo volume 2  | IG-DATA-VOLUME-2      | 50GB volume   |         | Attached to IG-PROD-MONGO-2. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
 | Mongo volume 3  | IG-DATA-VOLUME-3      | 50GB volume   |         | Attached to IG-PROD-MONGO-3. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
