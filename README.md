@@ -82,6 +82,10 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 
 #### Get products
 
+Uri: ```/products```
+Method: GET
+Headers: none
+
 Sample response:
 
 ```
@@ -170,4 +174,137 @@ Sample response:
    ...
 ]
 
+```
+
+#### Create access token 
+
+Uri: ```/tokens```
+Method: POST
+Headers: none
+
+Sample request:
+
+```
+{
+  "auth":"gvZWzBj7zrbTovwCDutSIv4vQVENi0HcyGvQp6yLCSUjgi2lIpgr3BUfiqzr\n3SV4HXznIzrIctgek60V0TGOaS/ZcF6Ikl5RLPSRlb5dgOA/r2fewZk5cdnA\n5C6qE+1zjko+wwiSqNCDadXGGHOEMWo/yDvR+SKjEYmoiE24yQd1mNk6EFRC\nazf1yhDHe5Hghi9x6Zl8WbwZ++KDkWdLRO43/qhOy3tr34O0KiNNX2ERH60G\nv27wiAp5nvFjXHdWHN8qlVg8oWfUe8bce7/IF6T8qPP9WCYAFuoyO9sGbrET\n9Qw08/8fnSQ3RbUW5twqhSW7XFeMXwuIwk5U3IBsiHpuKX3lKLYSqGiFzZOT\niQ1M1sF0UW3ULpKQ1KG/1Rlr7N8CS2hwapXKlri8uMKLIleEQPPoURpHrusW\nz4dXHb6/CW2QinqbbhrA0WRBAE0dWknjE/jL18CHrYDWM2vCY4S2Qk4P5rWd\nUSZlWw/UBFow6PIaJpCebTI9S3kwmA3MkVRoRKksX3ZYo+i144KKOv69LUgt\nj1+S+J+k5Qo2bSslrODg1OpY2cX3HTg+2wsChGPSB3MRS2+cjEnnhmHjq0yI\n6iD8NWaWcL/OktDWEaU=\n",
+  "iv":"EHoV2Y2hEOr93QXt0c9o5w==\n"
+}
+```
+
+Sample response:
+
+```
+{"token":"dd579963-3e49-4dbf-9160-c521625f3c52"}
+```
+
+#### Create an order to purchase VINOS
+
+Uri: ```/orders```
+Method: POST
+Headers: Authorization: [token]
+
+Sample request:
+
+```
+{
+    "type": "vin_purchase",
+    "products": [
+        {
+            "product_id": "71227",
+            "quantity": 1
+        }
+    ]
+}
+```
+
+Sample response:
+
+```
+{
+    "id": "55e98e9fb85a541170000004",
+    "status": "pending",
+    "checkout_id": "0941A83E2D5F8C0089F85C975DEE6A95.sbg-vm-tx01",
+    "checkout_uri": "https://test.oppwa.com/v1/paymentWidgets.js?checkoutId="
+}
+```
+
+#### Create an order to purchase membership
+
+Uri: ```/orders```
+Method: POST
+Headers: Authorization: [token]
+
+Sample request:
+
+```
+{
+    "type": "mem_purchase",
+    "products": [
+        {
+            "product_id": "71227",
+            "quantity": 1
+        }
+    ]
+}
+```
+
+Sample response:
+
+```
+{
+    "id": "55e98e9fb85a541170000004",
+    "status": "pending",
+    "checkout_id": "0941A83E2D5F8C0089F85C975DEE6A95.sbg-vm-tx01",
+    "checkout_uri": "https://test.oppwa.com/v1/paymentWidgets.js?checkoutId="
+}
+
+OR
+(for situations where no payment is required due to high enough balance)
+
+{
+    "id": "55e98e9fb85a541170000004",
+    "status": "complete"
+}
+
+```
+
+#### Create an order to redeem VINOS for physical products
+
+Uri: ```/orders```
+Method: POST
+Headers: Authorization: [token]
+
+Sample request:
+
+```
+{
+    "type": "vin_redemption",
+    "products": [
+        {
+            "product_id": "71594",
+            "quantity": 1
+        }
+    ],
+    "location": {
+        "address": "12 ajax way, pinelands, cape town 7405",
+        "coordinates": "-33.926401, 18.444876"
+    },
+    "notes":"Blue roof"
+}
+```
+
+Sample response:
+
+```
+{
+    "id": "4234",
+    "status": "complete",
+    "delivery_details": {
+        "distance_estimate": 4082,
+        "message": "delivery placed",
+        "price": 35,
+        "time_estimate": 520
+    },
+    "balance": "120"
+}
 ```
