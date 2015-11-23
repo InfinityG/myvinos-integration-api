@@ -108,7 +108,7 @@ class UserService
     raise 'User update not implemented'
   end
 
-  def update_balance(user_id, order_type, products, amount)
+  def update_balance_for_order_type(user_id, order_type, products, amount)
     user = get_by_id user_id
 
     # if a membership type, then bypass the trading hours restriction
@@ -156,15 +156,24 @@ class UserService
     current_day_allowed && current_hour_allowed
   end
 
+  def update_balance(user, amount)
+    new_balance = user.balance + amount
+    @user_repository.update_balance user.id.to_s, new_balance
+
+    {:pending_balance => user.pending_balance, :balance => new_balance}
+  end
+
   def update_balance_for_redemption(user_id, amount)
     user = get_by_id user_id
     # user.balance += amount
     # user.save
 
-    new_balance = user.balance + amount
-    @user_repository.update_balance user_id, new_balance
+    # new_balance = user.balance + amount
+    # @user_repository.update_balance user_id, new_balance
 
-    {:pending_balance => user.pending_balance, :balance => new_balance}
+    update_balance user, amount
+
+    # {:pending_balance => user.pending_balance, :balance => new_balance}
   end
 
   def update_balance_with_card(order, amount, registration_id, card)
@@ -178,7 +187,7 @@ class UserService
                                          card[:expiryYear])
     end
 
-    update_balance(order.user_id, order.type, order.products, amount)
+    update_balance_for_order_type(order.user_id, order.type, order.products, amount)
 
   end
 

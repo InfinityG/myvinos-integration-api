@@ -46,6 +46,20 @@ class ProductService
     result
   end
 
+  def get_membership_products
+    products = @cache_repository.get_products
+    result = []
+
+    products.each do |product|
+
+      if product.product_type == 'Membership'
+        result << product
+      end
+    end
+
+    result
+  end
+
   def get_live_product(product_id)
     product_response = @product_gateway.get_product product_id
     raise ApiError, THIRD_PARTY_PRODUCT_REQUEST_ERROR if product_response.response_code != 200

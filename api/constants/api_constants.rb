@@ -2,6 +2,7 @@
 module ApiConstants
   VIN_PURCHASE_TYPE = 'vin_purchase'
   VIN_REDEMPTION_TYPE = 'vin_redemption'
+  VIN_TOP_UP_TYPE = 'vin_topup'
   VIN_PROMO_TYPE = 'vin_promo'
   MEMBERSHIP_PURCHASE_TYPE = 'mem_purchase'
 
@@ -17,6 +18,7 @@ module ApiConstants
   USER_INITIATED_PAYMENT_MEMO = 'user initiated payment'
   RECURRING_PAYMENT_MEMO = 'recurring payment'
   NO_PAYMENT_REQUIRED_MEMO = 'no payment required'
+  TOP_UP_PAYMENT_MEMO = 'top-up'
 
   module MembershipConstants
     MEMBERSHIP_TYPE_BASIC = 'basic'

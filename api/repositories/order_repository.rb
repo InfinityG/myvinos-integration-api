@@ -52,6 +52,23 @@ class OrderRepository
 
     # create order record with transaction and products
     Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
+    end
+
+  def create_vin_topup_order(user_id, checkout_id, transaction_id, amount, currency, status, memo)
+
+    type = VIN_TOP_UP_TYPE
+
+    # create transaction record
+    transaction = Transaction.new(:type => type,
+                                  :checkout_id => checkout_id,
+                                  :external_transaction_id => transaction_id != nil ? transaction_id : '',
+                                  :amount => amount,
+                                  :currency => currency,
+                                  :status => status,
+                                  :memo => memo)
+
+    # create order record with transaction and products
+    Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => [])
   end
 
   def create_vin_redemption_order(user, amount, currency, products, location, notes)

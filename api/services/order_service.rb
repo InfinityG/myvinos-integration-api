@@ -80,9 +80,7 @@ class OrderService
 
     stored_cards = @card_repository.get_cards_for_user user.id.to_s
     checkout_id = create_checkout_id(stored_cards, converted_amount, true)
-
-    order = @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
-                                                        @config[:default_fiat_currency], products)
+    order = create_local_vin_purchase_order user, checkout_id, amount, products
 
     @queue_service.add_item_to_queue order.id, checkout_id
 
@@ -95,58 +93,40 @@ class OrderService
 
   end
 
+  #######################
+  # Membership purchases
+  #######################
+
   def create_mem_purchase_order(data, user)
     products = []
 
-    membership_type = get_membership_type data
+    membership_type = get_product_membership_type data
     amount = calculate_vin_purchase_amount(data, products)
 
     # check if the user's current balance is within the limit for the membership
+    # TODO: ensure the rules are correct
     payment_required = user.balance < amount
     # payment_required = true
 
     if payment_required
       converted_amount = RateUtil.convert_vin_to_fiat amount
-      stored_cards = @card_repository.get_cards_for_user user.id.to_s
-
-      checkout_id = create_checkout_id(stored_cards, converted_amount, true)
       checkout_uri = @config[:payment_widget_uri]
+      stored_cards = @card_repository.get_cards_for_user user.id.to_s
+      checkout_id = create_checkout_id(stored_cards, converted_amount, true)
 
-      order = @order_repository.create_mem_purchase_order(user.id.to_s, checkout_id, nil, amount,
-                                                          @config[:default_fiat_currency], products,
-                                                          PAYMENT_STATUS_PENDING, USER_INITIATED_PAYMENT_MEMO)
+      # create the local order
+      order = create_local_membership_order true, user, checkout_id, amount, products
 
       # add the item to the queue - when this is processed then the membership will be updated
       @queue_service.add_item_to_queue order.id, checkout_id
-
-      ################################################################################
-      # ABSTRACT THE FOLLOWING INTO THE VINOS_REDEMPTION ORDER PROCESS
-      ################################################################################
-      # if there are no stored cards, then initiate a checkout id request
-      # if stored_cards.length == 0
-      #
-      # else
-      #   # if there is a stored card, then we want to use this to create an automatic top-up (recurring payment)
-      #   default_card = stored_cards.find do |stored_card|
-      #     stored_card.default
-      #   end
-      #
-      #   # send the recurring payment
-      #   payment_id = create_recurring_payment_id default_card, converted_amount
-      #
-      #   order = @order_repository.create_mem_purchase_order(user.id.to_s, nil, payment_id, amount,
-      #                                                       @config[:default_fiat_currency], products,
-      #                                                       PAYMENT_STATUS_COMPLETE, RECURRING_PAYMENT_MEMO)
-      # end
-
     else
       # no payment required - create the order with the transaction
       checkout_id = nil
       checkout_uri = nil
-      order = @order_repository.create_mem_purchase_order(user.id.to_s, nil, nil, amount,
-                                                          @config[:default_fiat_currency], products,
-                                                          PAYMENT_STATUS_COMPLETE, NO_PAYMENT_REQUIRED_MEMO)
 
+      # create the local order without payment
+      order = create_local_membership_order false, user, nil, 0, products
+      # immediate update of membership
       @user_service.update_membership user.id.to_s, membership_type
     end
 
@@ -159,19 +139,133 @@ class OrderService
 
   end
 
-  def get_membership_type(data)
+  ###################
+  # VINOS redemption
+  ###################
+
+  def create_vin_redemption_order(data, user)
+
+    raise ApiError, OUTSIDE_DELIVERY_HOURS_ERROR unless confirm_within_delivery_hours
+
+    parsed_products = parse_products(data)
+    user_balance = user.balance
+    membership = get_membership_for_user user
+
+    # check the user's balance
+    if membership[:type] == MEMBERSHIP_TYPE_BASIC
+      if user_balance < parsed_products[:total]
+        raise ApiError, INSUFFICIENT_VINOS
+      end
+    else
+      vin_order_price = parsed_products[:total].to_i
+      vin_membership_price = membership[:price].to_i
+      vin_amount = vin_order_price - (user.balance.to_i - vin_membership_price) # any shortfall in the membership
+      vin_top_up_price = vin_amount - vin_membership_price
+      charge_amount = RateUtil.convert_vin_to_fiat vin_amount # the amount to send to the payment gateway
+
+      if vin_amount > 0
+        create_recurring_payment(membership, vin_membership_price, vin_top_up_price, vin_amount, charge_amount, user)
+      end
+
+    end
+
+    local_order = create_local_redemption_order(user, parsed_products, data[:location], data[:notes])
+
+    # these operations all update fields on the local_order (by reference)
+    # create_third_party_redemption_order(local_order, user, parsed_products[:order_products])
+    # create_delivery(local_order, user)
+    # update_third_party_order_status local_order
+
+    @order_repository.update_order local_order
+    balance = update_balance user, parsed_products
+
+    {
+        :id => local_order.id.to_s,
+        :status => local_order.status,
+        :delivery_details => {
+            :status => local_order.delivery.status,
+            :distance_estimate => local_order.delivery.distance_estimate,
+            :time_estimate => local_order.delivery.time_estimate
+        },
+        :balance => balance
+    }
+
+  end
+
+  def create_recurring_payment(membership, vin_membership_price, vin_top_up_price, vin_amount, charge_amount, user)
+    stored_cards = @card_repository.get_cards_for_user user.id.to_s
+
+    default_card = stored_cards.find do |stored_card|
+      stored_card.default
+    end
+
+    # send the recurring payment for the full amount (membership + top-up)
+    payment_id = create_recurring_payment_id default_card, charge_amount
+
+    # create 2 separate local orders: 1 for the membership, 1 for the top-up
+    # @order_repository.create_mem_purchase_order(user.id.to_s, nil, payment_id, vin_membership_price,
+    #                                             @config[:default_fiat_currency],
+    #                                             [membership],
+    #                                             PAYMENT_STATUS_COMPLETE,
+    #                                             RECURRING_PAYMENT_MEMO)
+
+
+    # @order_repository.create_vin_topup_order(user.id.to_s, nil, payment_id, vin_top_up_price,
+    #                                          @config[:default_fiat_currency],
+    #                                          PAYMENT_STATUS_COMPLETE,
+    #                                          TOP_UP_PAYMENT_MEMO)
+
+    @order_repository.create_vin_topup_order(user.id.to_s, nil, payment_id, vin_amount,
+                                             @config[:default_fiat_currency],
+                                             PAYMENT_STATUS_COMPLETE,
+                                             TOP_UP_PAYMENT_MEMO)
+
+
+    # update the balance on the user
+    @user_service.update_balance(user, vin_amount)
+  end
+
+  #########################
+  # VINOS BONUS ORDERS
+  #########################
+  def create_vinos_bonus_order(data, user)
+    # TODO
+  end
+
+  ###########
+  # HELPERS
+  ###########
+
+  def get_product_membership_type(data)
     raise ApiError, MEMBERSHIP_QUANTITY_ERROR if data[:products].length > 1
 
     product_id = data[:products][0][:product_id]
     cached_product = @product_service.get_product product_id
 
     membership_type = MEMBERSHIP_TYPES.find do |type|
-      return type if cached_product.name.to_s.downcase.include? type
+      type if cached_product.name.to_s.downcase.include? type
     end
 
     raise ApiError, MEMBERSHIP_TYPE_NOT_FOUND if membership_type == nil
 
     membership_type
+  end
+
+  def get_membership_for_user(user)
+    membership_type = user.membership_type != nil ? user.membership_type : MEMBERSHIP_TYPE_BASIC
+
+    @product_service.get_membership_products.find do |product|
+      if product.name.to_s.downcase.include? membership_type
+        # return {:type => membership_type, :product => product}
+        return {
+            :type => membership_type,
+            :product_id => product.id.to_s,
+            :quantity => 1,
+            :name => product.name,
+            :description => product.description,
+            :price => product.price}
+      end
+    end
   end
 
   def calculate_vin_purchase_amount(data, products)
@@ -206,7 +300,7 @@ class OrderService
 
     # check if the expiry period has been reached
     if (Time.now.to_i - creation_date.to_i) > @config[:purchase_order_timeout].to_i
-      return {:status => 'abandoned'}
+      return {:status => PAYMENT_STATUS_ABANDONED}
     end
     # FOR POSSIBLE RESPONSE CODES:
     # http://support.peachpayments.com/hc/en-us/articles/205282107-Determine-Transaction-Status-from-Result-Code
@@ -238,65 +332,13 @@ class OrderService
     {:status => 'failure', :description => result_description}
   end
 
-  ###################
-  # VINOS redemption
-  ###################
-
-  def create_vin_redemption_order(data, user)
-
-    raise ApiError, OUTSIDE_DELIVERY_HOURS_ERROR unless confirm_within_delivery_hours
-
-    parsed_products = parse_products(data, user.balance)
-    local_order = create_local_order(user, parsed_products, data[:location], data[:notes])
-
-    # these operations all update fields on the local_order (by reference)
-    create_third_party_order(local_order, user, parsed_products[:order_products])
-    create_delivery(local_order, user)
-    update_third_party_order_status local_order
-
-    @order_repository.update_order local_order
-    balance = update_balance user, parsed_products
-
-    {
-        :id => local_order.id.to_s,
-        :status => local_order.status,
-        :delivery_details => {
-            :status => local_order.delivery.status,
-            :distance_estimate => local_order.delivery.distance_estimate,
-            :time_estimate => local_order.delivery.time_estimate
-        },
-        :balance => balance
-    }
-
-  end
-
   def confirm_within_delivery_hours
-
     if @config[:delivery_hours_active]
       current_hour = TimeUtil.get_current_hour_in_zone @config[:time_zone]
       return (@config[:delivery_hours_start] < current_hour) && (@config[:delivery_hours_end] > current_hour)
     end
 
     true
-  end
-
-  def create_local_order(user, parsed_products, location, notes)
-    @order_repository.create_vin_redemption_order(user,
-                                                  parsed_products[:total],
-                                                  @config[:default_crypto_currency],
-                                                  parsed_products[:order_products],
-                                                  location, notes)
-  end
-
-  def create_third_party_order(local_order, user, parsed_products)
-    begin
-      address = "#{local_order.delivery.address} (#{local_order.delivery.coordinates})"
-      third_party_order = send_order_create_request(user, address, parsed_products)
-      local_order.external_order_id = third_party_order[:order][:id]
-    rescue ApiError
-      local_order.status = 'third party order creation failed'
-      raise ApiError, THIRD_PARTY_ORDER_CREATION_ERROR
-    end
   end
 
   def create_delivery(local_order, user)
@@ -329,16 +371,42 @@ class OrderService
     @user_service.update_balance_for_redemption user.id.to_s, -parsed_products[:total]
   end
 
-  #########################
-  # VINOS BONUS ORDERS
-  #########################
-  def create_vinos_bonus_order(data, user)
-    # TODO
+  def create_local_vin_purchase_order(user, checkout_id, amount, products)
+    @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
+                                                @config[:default_fiat_currency], products)
   end
 
-  ###########
-  # HELPERS
-  ###########
+  def create_local_redemption_order(user, parsed_products, location, notes)
+    @order_repository.create_vin_redemption_order(user,
+                                                  parsed_products[:total],
+                                                  @config[:default_crypto_currency],
+                                                  parsed_products[:order_products],
+                                                  location, notes)
+  end
+
+  def create_third_party_redemption_order(local_order, user, parsed_products)
+    begin
+      address = "#{local_order.delivery.address} (#{local_order.delivery.coordinates})"
+      third_party_order = send_order_create_request(user, address, parsed_products)
+      local_order.external_order_id = third_party_order[:order][:id]
+    rescue ApiError
+      local_order.status = 'third party order creation failed'
+      raise ApiError, THIRD_PARTY_ORDER_CREATION_ERROR
+    end
+  end
+
+  def create_local_membership_order(with_payment, user, checkout_id, amount, products)
+    if with_payment
+      @order_repository.create_mem_purchase_order(user.id.to_s, checkout_id, nil, amount,
+                                                  @config[:default_fiat_currency], products,
+                                                  PAYMENT_STATUS_PENDING, USER_INITIATED_PAYMENT_MEMO)
+    else
+      @order_repository.create_mem_purchase_order(user.id.to_s, nil, nil, amount,
+                                                  @config[:default_fiat_currency], products,
+                                                  PAYMENT_STATUS_COMPLETE, NO_PAYMENT_REQUIRED_MEMO)
+    end
+
+  end
 
   def create_checkout_id(stored_cards, amount, init_recurring)
     checkout_id = nil
@@ -349,7 +417,7 @@ class OrderService
     checkout_id = checkout_response[:id] if @config[:payment_pending_codes].include? result_code.to_s
 
     checkout_id
-    end
+  end
 
   def create_recurring_payment_id(default_card, amount)
     recurring_payment_id = nil
@@ -362,7 +430,7 @@ class OrderService
     recurring_payment_id
   end
 
-  def parse_products(data, current_balance)
+  def parse_products(data)
     running_total = 0
     order_products_arr = []
 
@@ -379,12 +447,12 @@ class OrderService
       price = (cached_product.price.to_i * quantity)
       running_total += price
 
-      raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
+      # raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
 
       order_products_arr << {:product_id => id,
                              :quantity => quantity,
                              :name => cached_product.name,
-                             :description => cached_product.description,
+                             # :description => cached_product.description,
                              :price => cached_product.price}
     end
 
@@ -399,7 +467,7 @@ class OrderService
                              :price => delivery_product.price}
 
       running_total += delivery_product.price.to_i
-      raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
+      # raise ApiError, INSUFFICIENT_VINOS if running_total > current_balance
     end
 
     {:order_products => order_products_arr, :total => running_total}

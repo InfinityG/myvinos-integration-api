@@ -326,16 +326,27 @@ __Sample response:__
 
 ```
 {
-    "id": "",
-    "external_id": "",
-    "third_party_id": "",
-    "username": "johnny_mnemonic@test.com",
-    "first_name": "Johnny",
-    "last_name": "Mnemonic",
+    "balance": 35,
+    "created_at": "2015-11-06T20:19:19.057Z",
     "email": "johnny_mnemonic@test.com",
-    "balance": "75",
-    "pending_balance":"0",
-    "membership_type":"basic",
-    "cards":[]
+    "external_id": "563cfdb9b85a5433b200008f",
+    "first_name": "Johnny",
+    "id": "563d0b47b85a5435fd000001",
+    "last_name": "Mnemonic",
+    "membership_type": "silver",
+    "pending_balance": 0,
+    "third_party_id": "738",
+    "updated_at": "2015-11-20T11:31:45.233Z",
+    "username": "johnny_mnemonic@test.com",
+    "cards": [
+        {
+            "default": true,
+            "expiry_month": 12,
+            "expiry_year": 2016,
+            "holder": "Johnny Mnemonic",
+            "id": "564df1b3b85a54113c000298",
+            "last_4_digits": 1111
+        }
+    ]
 }
 ```
