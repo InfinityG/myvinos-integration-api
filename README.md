@@ -80,7 +80,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Create an order to redeem VINOS        | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /orders [POST]          | Authorization: [token] |         |          |
 | Get user details                       | Get the details for a particular user                                                                        | /users/{username} [GET] | Authorization: [token] |         |          |
 
-#### Get products
+#### <a name="get-products"> Get products
 
 Uri: ```/products```
 
