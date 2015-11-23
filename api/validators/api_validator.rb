@@ -44,7 +44,7 @@ class ApiValidator
 
       data[:products].each do |item|
         errors.push INVALID_PRODUCT_ID unless GeneralValidator.validate_string item[:product_id]
-        errors.push INVALID_QUANTITY unless GeneralValidator.validate_integer item[:quantity]
+        errors.push INVALID_QUANTITY unless GeneralValidator.validate_integer item[:quantity] && item[:quantity].to_i > 0
       end
 
       if data[:type].to_s.downcase == 'vin_redemption'
