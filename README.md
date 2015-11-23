@@ -73,7 +73,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 
 | Operation                              | Description                                                                                                  | Endpoint                | Headers                | Request | Response |
 |----------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------------|------------------------|---------|----------|
-| Get products                           | Gets the list of products                                                                                    | /products [GET]         | none                   |         |          |
+| Get products                           | Gets the list of products                                                                                    | /products [GET]         | none                   |         | [sample](#get-products)         |
 | Create access token                    | Creates an access token                                                                                      | /tokens  [POST]         | none                   |         |          |
 | Create an order to purchase VINOS      | Create an order to purchase VINOS credits                                                                    | /orders [POST]          | Authorization:[token]  |         |          |
 | Create an order to purchase membership | Create an order to purchase a membership                                                                     | /orders [POST]          | Authorization:[token]  |         |          |
@@ -83,10 +83,11 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 #### Get products
 
 Uri: ```/products```
+
 Method: GET
 Headers: none
 
-Sample response:
+__Sample response:__
 
 ```
 [
@@ -179,10 +180,11 @@ Sample response:
 #### Create access token 
 
 Uri: ```/tokens```
+
 Method: POST
 Headers: none
 
-Sample request:
+__Sample request:__
 
 ```
 {
@@ -191,7 +193,7 @@ Sample request:
 }
 ```
 
-Sample response:
+__Sample response:__
 
 ```
 {"token":"dd579963-3e49-4dbf-9160-c521625f3c52"}
@@ -200,10 +202,11 @@ Sample response:
 #### Create an order to purchase VINOS
 
 Uri: ```/orders```
+
 Method: POST
 Headers: Authorization: [token]
 
-Sample request:
+__Sample request:__
 
 ```
 {
@@ -217,7 +220,7 @@ Sample request:
 }
 ```
 
-Sample response:
+__Sample response:__
 
 ```
 {
@@ -231,10 +234,11 @@ Sample response:
 #### Create an order to purchase membership
 
 Uri: ```/orders```
+
 Method: POST
 Headers: Authorization: [token]
 
-Sample request:
+__Sample request:__
 
 ```
 {
@@ -248,7 +252,7 @@ Sample request:
 }
 ```
 
-Sample response:
+__Sample response:__
 
 ```
 {
@@ -271,10 +275,11 @@ OR
 #### Create an order to redeem VINOS for physical products
 
 Uri: ```/orders```
+
 Method: POST
 Headers: Authorization: [token]
 
-Sample request:
+__Sample request:__
 
 ```
 {
@@ -293,7 +298,7 @@ Sample request:
 }
 ```
 
-Sample response:
+__Sample response:__
 
 ```
 {
