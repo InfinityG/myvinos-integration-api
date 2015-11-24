@@ -344,9 +344,16 @@ class OrderService
   def create_delivery(local_order, user)
     begin
       delivery = send_delivery_request user, local_order
+
+      # adjust the delivery time from seconds to minutes and add the delivery buffer
+      delivery_time = delivery[:time_estimate].to_i/60
+      puts "Unbuffered delivery time: #{delivery_time}"
+      adjusted_delivery_time = delivery_time + @config[:delivery_buffer]
+      puts "Buffered delivery time: #{adjusted_delivery_time}"
+
       local_order.delivery.status = 'complete'
       local_order.delivery.external_id = delivery[:id]
-      local_order.delivery.time_estimate = (delivery[:time_estimate].to_i/60).to_s
+      local_order.delivery.time_estimate = delivery_time.to_s
       local_order.delivery.distance_estimate = delivery[:distance_estimate]
     rescue ApiError
       local_order.status = 'third party delivery creation failed'
