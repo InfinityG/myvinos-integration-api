@@ -30,83 +30,7 @@ be purchased, and physical wine stock redeemed at a later stage for these credit
         - For instructions on how to install Docker on Ubuntu, see the [docs](http://docs.docker.com/engine/installation/ubuntulinux/)
     - The __production__ dockerfile creates a Docker image without a local MongoDB instance. In production MongoDB is 
     running in an external cluster, and is set up separately.
- 
-## Live environment and topology
-Currently, the live environment is set up in Amazon AWS, via the EC2 dashboard. No automated deployment scripts have yet been 
- created. Access to these instances must be made via SSH, and require the relevant SSH keys. 
- 
- The list of instances are as follows:
 
-| Name            | EC2 Name              | Instance type | Subnet  | Description                                                                                                                                 |
-|-----------------|-----------------------|---------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| Load balancer   | IGPROD-LB             |               |         | External interface to the internet                                                                                                          |
-| NAT             | IGPROD-NAT            | m1.small      | public  | NAT server - provides external access from the private subnet; also a 'bastion' server that allows SSH into private subnet via ssh-agent    |
-| Proxy           | IGPROD-PROXY          | t2.micro      | public  | Runs nginx to allow routing, port mapping and request throttling to private subnet                                                          |
-| Docker server   | IGPROD-DOCKER-MYVINOS | t2.small      | private | The instance that Docker is installed on. Images and containers are installed and run from here                                             |
-| Mongo primary   | IGPROD-MONGO-1        | t2.small      | private | Mongo is installed on this - this is the primary server. The database and journal lives on an attached volume (see below)                   |
-| Mongo secondary | IGPROD-MONGO-2        | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
-| Mongo secondary | IGPROD-MONGO3         | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
-| Mongo volume 1  | IG-DATA-VOLUME-1      | 50GB volume   |         | Attached to IG-PROD-MONGO-1. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
-| Mongo volume 2  | IG-DATA-VOLUME-2      | 50GB volume   |         | Attached to IG-PROD-MONGO-2. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
-| Mongo volume 3  | IG-DATA-VOLUME-3      | 50GB volume   |         | Attached to IG-PROD-MONGO-3. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
-|                 |                       |               |         |          
-
-## Data store
-In the live environment (see the above topology), the data store for the API is a MongoDB cluster. The configuration for this 
- is a replica set with 3 members. See the Mongo documentation for more information:
- - [3 member architecture](https://docs.mongodb.org/manual/core/replica-set-architecture-three-members/)
- - [replication](https://docs.mongodb.org/v3.0/MongoDB-replication-guide-v3.0.pdf)
- 
-### Replica set setup on EC2 - step by step
-
-#### Create the instances and volumes
-
-This assumes a working knowledge of Amazon AWS EC2.
-
-| Step                                             | Command/description                   |
-|--------------------------------------------------|---------------------------------------|
-| Create 3 identical instances with the following: | t2 small, Ubuntu 14.04 64 bit         |
-| Create 3 identical volumes with the following:   | EBS, 50 GB, GP2 (general purpose ssd) |
-| Attach volume to each instance                   | Done via the AWS console (volumes)    |
-
-#### Install MongoDB on each instance
-
-| Step                                                      | Linux command/description                                                                                                           | Sample                                                                                                              |
-|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
-| Add key server                                            | ```sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10```                                                    |                                                                                                                     |
-| Install Mongo                                             | ```echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list``` |                                                                                                                     |
-|                                                           | ```sudo apt-get update```                                                                                                           |                                                                                                                     |
-|                                                           | ```sudo apt-get install mongodb-10gen```                                                                                            |                                                                                                                     |
-| Check volumes attached to instance                        | ```lsblk```                                                                                                                         | ```NAME,MAJ:MIN RM SIZE RO TYPE MOUNTPOINT xvda,202:0,0,8G,0 disk,└─xvda1 202:1,0,8G,0 part / xvdf,202:80,0,50G,0 disk``` |
-| Make filesystem on new volume (ensure its the right one!) | ```sudo mkfs -t ext4 /dev/xvdf```                                                                                                   |                                                                                                                     |
-| Make directory in root of instance                        | ```sudo mkdir /database```                                                                                                          |                                                                                                                     |
-|                                                           | ```echo '/dev/xvdf /database ext4 defaults,auto,noatime,noexec 0 0' | sudo tee -a /etc/fstab```                                     |                                                                                                                     |
-| Mount the new volume to the new directory                 | ```sudo mount /dev/xvdf /database```                                                                                                |                                                                                                                     |
-| Cd to the new directory, and create new sub-directories   | ```cd /database/```                                                                                                                 |                                                                                                                     |
-|                                                           | ```sudo mkdir data journal log```                                                                                                   |                                                                                                                     |
-| Change the owner of the new directory                     | ```sudo chown -R mongodb:mongodb /database```                                                                                       |                                                                                                                     |
-| Create a link to the journal                              | ```sudo ln -s /database/journal /database/data/journal```                                                                           |                                                                                                                     |
-| Modify the config                                         | ```sudo nano /etc/mongodb.conf```                                                                                                   | ```#mongodb.conf dbpath=/database/data logpath=/database/log/mongodb.log replSet = IGREPSET_1```                          |
-| Restart the server                                        |                                                                                                                               |                                                                                                                     |
-
-The replica set should now be ready for use.
-
-#### Configure the replica set
-
-| Step                                                                                                                    | Command/description                                                                                                                                                                                | Sample response                                                                                                                                                                                                                                                                                        |
-|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Open Mongo shell on the primary EC2 instance                                                                            | ```mongo ```                                                                                                                                                                                             |```MongoDB shell version: 2.4.14 connecting to: test >```                                                                                                                                                                                                                                                    |
-| Check configuration                                                                                                     | ```> db._adminCommand( {getCmdLineOpts: 1})```                                                                                                                                                           |```{"argv": [ "/usr/bin/mongod", "--config", "/etc/mongodb.conf" ], "parsed":{ "config":"/etc/mongodb.conf", "dbpath":"/database/data", "logappend":"true", "logpath":"/database/log/mongodb.log", "replSet":"IGREPSET_1" }, "ok" : 1 }``` |
-| Configure members of replica set (done on PRIMARY). Ensure that the IP addresses and ports are available to connect to. | ```> config = { "_id":"IGREPSET_1", "members":[ {"_id":0, "host":"10.0.1.28:27017"}, {"_id":1, "host":"10.0.1.228:27017"}, {"_id":2, "host":"10.0.1.238:27017"} ] }```                                   |```{ "_id":"IGREPSET_1", "members" [ { "_id":0, "host":"10.0.1.28:27017" }, { "_id":1, "host":"10.0.1.228:27017" }, { "_id":2, "host":"10.0.1.238:27017" } ] }```                                        |
-| Connect to database (PRIMARY)                                                                                           | ```> db = (new Mongo("10.0.1.28:27017")).getDB("test")```                                                                                                                                                |```{ "info":"Config now saved locally. Should come online in about a minute.", "ok":1 }```                                                                                                                                                                                                             |
-| Confirm (open Mongo shell and check that the prompt shows,the replica set)                                              | ```mongo```                                                                                                                                                                                              |```MongoDB shell version: 2.4.14 connecting to: test IGREPSET_1:PRIMARY>```                                                                                                                                                                                                                                  |
-
-
-## SSL certificates
-All requests to the API are made via HTTPS (SSL). The DNS is set to forward requests to the load balancer, which currently has a wildcard
- SSL certificate installed on it. Requests are then forwarded to the proxy (nginx) over HTTP, which handles the routing to the API in 
- the private subnet.
- 
 ## Endpoints
 
 ### ID-IO
@@ -133,10 +57,9 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 
 #### Get products
 
-Uri: ```/products```
-
-Method: GET
-Headers: none
+- Uri: ```/products```
+- Method: GET
+- Headers: none
 
 __Sample response:__
 
@@ -230,10 +153,9 @@ __Sample response:__
 
 #### Create access token 
 
-Uri: ```/tokens```
-
-Method: POST
-Headers: none
+- Uri: ```/tokens```
+- Method: POST
+- Headers: none
 
 __Sample request:__
 
@@ -252,10 +174,9 @@ __Sample response:__
 
 #### Create an order to purchase VINOS
 
-Uri: ```/orders```
-
-Method: POST
-Headers: Authorization: [token]
+- Uri: ```/orders```
+- Method: POST
+- Headers: Authorization: [token]
 
 __Sample request:__
 
@@ -284,10 +205,9 @@ __Sample response:__
 
 #### Create an order to purchase membership
 
-Uri: ```/orders```
-
-Method: POST
-Headers: Authorization: [token]
+- Uri: ```/orders```
+- Method: POST
+- Headers: Authorization: [token]
 
 __Sample request:__
 
@@ -325,10 +245,9 @@ OR
 
 #### Create an order to redeem VINOS for physical products
 
-Uri: ```/orders```
-
-Method: POST
-Headers: Authorization: [token]
+- Uri: ```/orders```
+- Method: POST
+- Headers: Authorization: [token]
 
 __Sample request:__
 
@@ -368,10 +287,9 @@ __Sample response:__
 #### Get user details
 
 
-Uri: ```/users/{username}```
-
-Method: GET
-Headers: Authorization: [token]
+- Uri: ```/users/{username}```
+- Method: GET
+- Headers: Authorization: [token]
 
 __Sample response:__
 
@@ -401,3 +319,80 @@ __Sample response:__
     ]
 }
 ```
+
+## Live environment and topology
+Currently, the live environment is set up in Amazon AWS, via the EC2 dashboard. No automated deployment scripts have yet been 
+ created. Access to these instances must be made via SSH, and require the relevant SSH keys. 
+ 
+ The list of instances are as follows:
+
+| Name            | EC2 Name              | Instance type | Subnet  | Description                                                                                                                                 |
+|-----------------|-----------------------|---------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| Load balancer   | IGPROD-LB             |               |         | External interface to the internet                                                                                                          |
+| NAT             | IGPROD-NAT            | m1.small      | public  | NAT server - provides external access from the private subnet; also a 'bastion' server that allows SSH into private subnet via ssh-agent    |
+| Proxy           | IGPROD-PROXY          | t2.micro      | public  | Runs nginx to allow routing, port mapping and request throttling to private subnet                                                          |
+| Docker server   | IGPROD-DOCKER-MYVINOS | t2.small      | private | The instance that Docker is installed on. Images and containers are installed and run from here                                             |
+| Mongo primary   | IGPROD-MONGO-1        | t2.small      | private | Mongo is installed on this - this is the primary server. The database and journal lives on an attached volume (see below)                   |
+| Mongo secondary | IGPROD-MONGO-2        | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
+| Mongo secondary | IGPROD-MONGO3         | t2.small      | private | Mongo is installed on this - this is a secondary server. The database and journal lives on an attached volume (see below)                   |
+| Mongo volume 1  | IG-DATA-VOLUME-1      | 50GB volume   |         | Attached to IG-PROD-MONGO-1. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
+| Mongo volume 2  | IG-DATA-VOLUME-2      | 50GB volume   |         | Attached to IG-PROD-MONGO-2. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
+| Mongo volume 3  | IG-DATA-VOLUME-3      | 50GB volume   |         | Attached to IG-PROD-MONGO-3. This is the volume that the journal and database runs on. Backups can be made off this via creating snapshots. |
+|                 |                       |               |         |          
+
+## Data store
+In the live environment (see the above topology), the data store for the API is a MongoDB cluster. The configuration for this 
+ is a replica set with 3 members. See the Mongo documentation for more information:
+ - [3 member architecture](https://docs.mongodb.org/manual/core/replica-set-architecture-three-members/)
+ - [replication](https://docs.mongodb.org/v3.0/MongoDB-replication-guide-v3.0.pdf)
+ 
+### Replica set setup on EC2 - step by step
+
+#### Create the instances and volumes
+
+This assumes a working knowledge of Amazon AWS EC2.
+
+| Step                                             | Command/description                   |
+|--------------------------------------------------|---------------------------------------|
+| Create 3 identical instances with the following: | t2 small, Ubuntu 14.04 64 bit         |
+| Create 3 identical volumes with the following:   | EBS, 50 GB, GP2 (general purpose ssd) |
+| Attach volume to each instance                   | Done via the AWS console (volumes)    |
+
+#### Install MongoDB on each instance
+
+| Step                                                      | Linux command/description                                                                                                           | Sample                                                                                                              |
+|-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| Add key server                                            | ```sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 7F0CEB10```                                                    |                                                                                                                     |
+| Install Mongo                                             | ```echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list``` |                                                                                                                     |
+|                                                           | ```sudo apt-get update```                                                                                                           |                                                                                                                     |
+|                                                           | ```sudo apt-get install mongodb-10gen```                                                                                            |                                                                                                                     |
+| Check volumes attached to instance                        | ```lsblk```                                                                                                                         | ```NAME,MAJ:MIN RM SIZE RO TYPE MOUNTPOINT xvda,202:0,0,8G,0 disk,└─xvda1 202:1,0,8G,0 part / xvdf,202:80,0,50G,0 disk``` |
+| Make filesystem on new volume (ensure its the right one!) | ```sudo mkfs -t ext4 /dev/xvdf```                                                                                                   |                                                                                                                     |
+| Make directory in root of instance                        | ```sudo mkdir /database```                                                                                                          |                                                                                                                     |
+|                                                           | ```echo '/dev/xvdf /database ext4 defaults,auto,noatime,noexec 0 0' | sudo tee -a /etc/fstab```                                     |                                                                                                                     |
+| Mount the new volume to the new directory                 | ```sudo mount /dev/xvdf /database```                                                                                                |                                                                                                                     |
+| Cd to the new directory, and create new sub-directories   | ```cd /database/```                                                                                                                 |                                                                                                                     |
+|                                                           | ```sudo mkdir data journal log```                                                                                                   |                                                                                                                     |
+| Change the owner of the new directory                     | ```sudo chown -R mongodb:mongodb /database```                                                                                       |                                                                                                                     |
+| Create a link to the journal                              | ```sudo ln -s /database/journal /database/data/journal```                                                                           |                                                                                                                     |
+| Modify the config                                         | ```sudo nano /etc/mongodb.conf```                                                                                                   | ```#mongodb.conf dbpath=/database/data logpath=/database/log/mongodb.log replSet = IGREPSET_1```                          |
+| Restart the server                                        |                                                                                                                               |                                                                                                                     |
+
+The replica set should now be ready for use.
+
+#### Configure the replica set
+
+| Step                                                                                                                    | Command/description                                                                                                                                                                                | Sample response                                                                                                                                                                                                                                                                                        |
+|-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Open Mongo shell on the primary EC2 instance                                                                            | ```mongo ```                                                                                                                                                                                             |```MongoDB shell version: 2.4.14 connecting to: test >```                                                                                                                                                                                                                                                    |
+| Check configuration                                                                                                     | ```> db._adminCommand( {getCmdLineOpts: 1})```                                                                                                                                                           |```{"argv": [ "/usr/bin/mongod", "--config", "/etc/mongodb.conf" ], "parsed":{ "config":"/etc/mongodb.conf", "dbpath":"/database/data", "logappend":"true", "logpath":"/database/log/mongodb.log", "replSet":"IGREPSET_1" }, "ok" : 1 }``` |
+| Configure members of replica set (done on PRIMARY). Ensure that the IP addresses and ports are available to connect to. | ```> config = { "_id":"IGREPSET_1", "members":[ {"_id":0, "host":"10.0.1.28:27017"}, {"_id":1, "host":"10.0.1.228:27017"}, {"_id":2, "host":"10.0.1.238:27017"} ] }```                                   |```{ "_id":"IGREPSET_1", "members" [ { "_id":0, "host":"10.0.1.28:27017" }, { "_id":1, "host":"10.0.1.228:27017" }, { "_id":2, "host":"10.0.1.238:27017" } ] }```                                        |
+| Connect to database (PRIMARY)                                                                                           | ```> db = (new Mongo("10.0.1.28:27017")).getDB("test")```                                                                                                                                                |```{ "info":"Config now saved locally. Should come online in about a minute.", "ok":1 }```                                                                                                                                                                                                             |
+| Confirm (open Mongo shell and check that the prompt shows,the replica set)                                              | ```mongo```                                                                                                                                                                                              |```MongoDB shell version: 2.4.14 connecting to: test IGREPSET_1:PRIMARY>```                                                                                                                                                                                                                                  |
+
+
+## SSL certificates
+All requests to the API are made via HTTPS (SSL). The DNS is set to forward requests to the load balancer, which currently has a wildcard
+ SSL certificate installed on it. Requests are then forwarded to the proxy (nginx) over HTTP, which handles the routing to the API in 
+ the private subnet.
+ 
