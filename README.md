@@ -396,9 +396,33 @@ The replica set should now be ready for use.
 | Connect to database (PRIMARY)                                                                                           | ```> db = (new Mongo("10.0.1.28:27017")).getDB("test")```                                                                                                                                                |```{ "info":"Config now saved locally. Should come online in about a minute.", "ok":1 }```                                                                                                                                                                                                             |
 | Confirm (open Mongo shell and check that the prompt shows,the replica set)                                              | ```mongo```                                                                                                                                                                                              |```MongoDB shell version: 2.4.14 connecting to: test IGREPSET_1:PRIMARY>```                                                                                                                                                                                                                                  |
 
+### Data store backups
+
+Currently, 
+
+- http://serverfault.com/questions/469847/mongodb-disaster-prep-on-aws
+- http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modifying-snapshot-permissions.html
+- http://cloudacademy.com/blog/how-to-manage-ebs-volumes-snapshots-in-aws/
 
 ## SSL certificates
 All requests to the API are made via HTTPS (SSL). The DNS is set to forward requests to the load balancer, which currently has a wildcard
  SSL certificate installed on it. Requests are then forwarded to the proxy (nginx) over HTTP, which handles the routing to the API in 
  the private subnet.
  
+## Resources and links
+
+- ID-IO
+    - [Github and API docs](https://github.com/InfinityG/id-io)
+
+- Peach Payments
+    - [API docs](https://peachpayments.docs.oppwa.com/)
+    - [Test cards](http://support.peachpayments.com/hc/en-us/articles/203019488-Test-Cards-for-Peach-Payments)
+    - [Payment return codes](http://support.peachpayments.com/hc/en-us/articles/200694456-Available-Return-Codes-000-000-000-to-999-999-999-)
+    - [BIP Platform - test](https://peachpayments.test.ctpe.info/?merchant_name=Peach+Payments)
+    - [BIP Platform - live]( https://peachpayments.ctpe.info/Reserve+Wine/)
+
+- WooCommerce
+    - [API docs](http://woothemes.github.io/woocommerce-rest-api-docs/)
+
+- Wumdrop
+    - [API docs](https://wumdrop.readme.io/docs)
