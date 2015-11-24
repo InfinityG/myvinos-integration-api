@@ -348,9 +348,11 @@ In the live environment (see the above topology), the data store for the API is 
  
 ### Replica set setup on EC2 - step by step
 
+The following steps were used to create the Mongo instances and volumes described in the 'Live environment and topology' table above.
+
 #### 1. Create the instances and volumes
 
-This assumes a working knowledge of Amazon AWS EC2.
+This assumes a working knowledge of Amazon AWS EC2. 
 
 | Step                                             | Command/description                   |
 |--------------------------------------------------|---------------------------------------|
