@@ -348,7 +348,7 @@ In the live environment (see the above topology), the data store for the API is 
  
 ### Replica set setup on EC2 - step by step
 
-#### Create the instances and volumes
+#### 1. Create the instances and volumes
 
 This assumes a working knowledge of Amazon AWS EC2.
 
@@ -358,7 +358,7 @@ This assumes a working knowledge of Amazon AWS EC2.
 | Create 3 identical volumes with the following:   | EBS, 50 GB, GP2 (general purpose ssd) |
 | Attach volume to each instance                   | Done via the AWS console (volumes)    |
 
-#### Install MongoDB on each instance
+#### 2. Install MongoDB on each instance
 
 | Step                                                      | Linux command/description                                                                                                           | Sample                                                                                                              |
 |-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
@@ -380,7 +380,7 @@ This assumes a working knowledge of Amazon AWS EC2.
 
 The replica set should now be ready for use.
 
-#### Configure the replica set
+#### 3. Configure the replica set
 
 | Step                                                                                                                    | Command/description                                                                                                                                                                                | Sample response                                                                                                                                                                                                                                                                                        |
 |-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
