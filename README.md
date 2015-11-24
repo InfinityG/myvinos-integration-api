@@ -54,12 +54,14 @@ Currently, the live environment is set up in Amazon AWS, via the EC2 dashboard. 
 ## Data store
 In the live environment (see the above topology), the data store for the API is a MongoDB cluster. The configuration for this 
  is a replica set with 3 members. See the Mongo documentation for more information:
- - [3 member architecture](https://docs.mongodb.org/manual/core/replica-set-architecture-three-members/))
+ - [3 member architecture](https://docs.mongodb.org/manual/core/replica-set-architecture-three-members/)
  - [replication](https://docs.mongodb.org/v3.0/MongoDB-replication-guide-v3.0.pdf)
  
 ### Replica set setup on EC2 - step by step
 
-__Create the instances and volumes__
+#### Create the instances and volumes
+
+This assumes a working knowledge of Amazon AWS EC2.
 
 | Step                                             | Command/description                   |
 |--------------------------------------------------|---------------------------------------|
@@ -67,7 +69,7 @@ __Create the instances and volumes__
 | Create 3 identical volumes with the following:   | EBS, 50 GB, GP2 (general purpose ssd) |
 | Attach volume to each instance                   | Done via the AWS console (volumes)    |
 
-__Install MongoDB on each instance__
+#### Install MongoDB on each instance
 
 | Step                                                      | Linux command/description                                                                                                           | Sample                                                                                                              |
 |-----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
@@ -87,8 +89,9 @@ __Install MongoDB on each instance__
 | Modify the config                                         | ```sudo nano /etc/mongodb.conf```                                                                                                   | ```#mongodb.conf dbpath=/database/data logpath=/database/log/mongodb.log replSet = IGREPSET_1```                          |
 | Restart the server                                        |                                                                                                                               |                                                                                                                     |
 
+The replica set should now be ready for use.
 
-__Configure the replica set__
+#### Configure the replica set
 
 | Step                                                                                                                    | Command/description                                                                                                                                                                                | Sample response                                                                                                                                                                                                                                                                                        |
 |-------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
