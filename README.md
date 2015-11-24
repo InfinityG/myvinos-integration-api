@@ -398,7 +398,7 @@ The replica set should now be ready for use.
 
 ### Data store backups
 
-Currently, 
+Currently, snapshots are being taken of a secondary volume. Restoration is described here:
 
 - http://serverfault.com/questions/469847/mongodb-disaster-prep-on-aws
 - http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modifying-snapshot-permissions.html
