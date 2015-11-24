@@ -12,7 +12,11 @@ be purchased, and physical wine stock redeemed at a later stage for these credit
 - Bundler
 - Sinatra
 - MongoDB is the backing store
-- An external installation of [ID-IO](https://github.com/InfinityG/id-io) - an open-source identity provider  
+- External APIs: 
+    - [ID-IO](https://github.com/InfinityG/id-io) - an open-source identity provider which provides a registration and authentication service
+    - [WooCommerce API](http://woothemes.github.io/woocommerce-rest-api-docs/) (for integration with stock management and order placement)
+    - [Wumdrop API](https://wumdrop.readme.io/docs) (for integration with 3rd party delivery service)
+    - [Peach Payments API](https://peachpayments.docs.oppwa.com/) (for integration with 3rd party payment provider)
 
 ## Installation
 - Development: 
