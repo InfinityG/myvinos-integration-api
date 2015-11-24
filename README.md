@@ -376,7 +376,7 @@ This assumes a working knowledge of Amazon AWS EC2.
 | Change the owner of the new directory                     | ```sudo chown -R mongodb:mongodb /database```                                                                                       |                                                                                                                     |
 | Create a link to the journal                              | ```sudo ln -s /database/journal /database/data/journal```                                                                           |                                                                                                                     |
 | Modify the config                                         | ```sudo nano /etc/mongodb.conf```                                                                                                   | ```#mongodb.conf dbpath=/database/data logpath=/database/log/mongodb.log replSet = IGREPSET_1```                          |
-| Restart the server                                        |                                                                                                                               |                                                                                                                     |
+| Restart the server                                        | ```sudo service mongodb stop``` ```sudo service mongodb start```                                                                                                                           |                                                                                                                     |
 
 The replica set should now be ready for use.
 
