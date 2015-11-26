@@ -35,7 +35,8 @@ be purchased, and physical wine stock redeemed at a later stage for these credit
     - The __production__ dockerfile creates a Docker image without a local MongoDB instance. In production MongoDB is 
     running in an external cluster, and is set up separately.
     - CREATE THE DOCKERFILE ON THE INSTANCE:
-        - Create a Dockerfile ```sudo nano Dockerfile``` in the folder of your choice
+        - Create a Dockerfile ```sudo nano Dockerfile``` in the folder of your choice, and copy the text of the sample Dockerfile in the 
+        docker/production/Dockerfile into it.
     - CREATE AN IMAGE:
         - Run the following docker command from the root of the folder (this will create the image):
         ```
