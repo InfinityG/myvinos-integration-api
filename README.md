@@ -34,8 +34,16 @@ be purchased, and physical wine stock redeemed at a later stage for these credit
         - For instructions on how to install Docker on Ubuntu, see the [docs](http://docs.docker.com/engine/installation/ubuntulinux/)
     - The __production__ dockerfile creates a Docker image without a local MongoDB instance. In production MongoDB is 
     running in an external cluster, and is set up separately.
-    - After creation of an image using the Dockerfile (and in this case calling it 'infinityg/myvinos-integration-api:v2'), 
-    start a container as follows (where the '-e' are environment variables required by the application; '-p' is the port mapping):
+    - CREATE THE DOCKERFILE ON THE INSTANCE:
+        - Create a Dockerfile ```sudo nano Dockerfile``` in the folder of your choice
+    - CREATE AN IMAGE:
+        - Run the following docker command from the root of the folder:
+        ```
+        sudo docker build -t infinityg/myvinos-integration-api:v1 .
+        ```
+        - This will create the image
+    - STARTING A CONTAINER:
+        - After creation of an image using the Dockerfile, start a container as follows (where the '-e' are environment variables required by the application; '-p' is the port mapping):
     
     ```
     sudo docker run -e API_AUTH_TOKEN=**** 
