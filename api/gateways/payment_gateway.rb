@@ -82,7 +82,7 @@ class PaymentGateway
     uri = "#{@config[:payment_api_uri]}/registrations/#{default_card_reg_id}/payments"
     user_id = @config[:payment_api_user_id]
     password = @config[:payment_api_password]
-    entity_id = @config[:payment_api_entity_id]
+    entity_id = @config[:payment_api_entity_id_recurring]
 
     payload = {
         'authentication.userId' => user_id,

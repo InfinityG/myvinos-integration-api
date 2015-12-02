@@ -15,7 +15,7 @@ class OrderRepository
 
   def get_orders(user_id)
     Order.where(:user_id => user_id).all
-    end
+  end
 
   def get_non_abandoned_orders(user_id)
     Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}).all
@@ -35,7 +35,22 @@ class OrderRepository
 
     # create order record with transaction and products
     Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
-    end
+  end
+
+  def create_vin_credit_order(user_id, amount, currency, products, memo)
+
+    type = VIN_CREDIT_TYPE
+
+    # create transaction record with checkout id
+    transaction = Transaction.new(:type => type,
+                                  :amount => amount,
+                                  :currency => currency,
+                                  :status => PAYMENT_STATUS_COMPLETE,
+                                  :memo => memo)
+
+    # create order record with transaction and products
+    Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
+  end
 
   def create_mem_purchase_order(user_id, checkout_id, transaction_id, amount, currency, products, status, memo)
 
@@ -52,7 +67,7 @@ class OrderRepository
 
     # create order record with transaction and products
     Order.create(:user_id => user_id, :type => type, :transaction => transaction, :products => products)
-    end
+  end
 
   def create_vin_topup_order(user_id, checkout_id, transaction_id, amount, currency, status, memo)
 
@@ -114,7 +129,7 @@ class OrderRepository
     end
 
     order
-    end
+  end
 
   def update_order_transaction_status(order_id, external_transaction_id, status)
     order = Order.find(order_id.to_s)
@@ -128,7 +143,7 @@ class OrderRepository
     end
 
     order
-    end
+  end
 
   def update_order_delivery_status(order_id, status)
     order = Order.find(order_id.to_s)

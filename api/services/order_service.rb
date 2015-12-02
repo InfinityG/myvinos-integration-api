@@ -75,7 +75,7 @@ class OrderService
   def create_vin_purchase_order(data, user)
     products = []
 
-    amount = calculate_vin_purchase_amount(data, products)
+    amount = calculate_vin_amount(data, products)
     converted_amount = RateUtil.convert_vin_to_fiat amount
 
     stored_cards = @card_repository.get_cards_for_user user.id.to_s
@@ -101,7 +101,7 @@ class OrderService
     products = []
 
     membership_type = get_product_membership_type data
-    amount = calculate_vin_purchase_amount(data, products)
+    amount = calculate_vin_amount(data, products)
 
     # check if the user's current balance is within the limit for the membership
     # TODO: ensure the rules are correct
@@ -220,16 +220,20 @@ class OrderService
                                              PAYMENT_STATUS_COMPLETE,
                                              TOP_UP_PAYMENT_MEMO)
 
-
     # update the balance on the user
     @user_service.update_balance(user, vin_amount)
   end
 
   #########################
-  # VINOS BONUS ORDERS
+  # VINOS CREDIT ORDERS
   #########################
-  def create_vinos_bonus_order(data, user)
-    # TODO
+  def create_vin_credit_order(data, user)
+    products = []
+    vin_amount = calculate_vin_amount(data, products)
+    create_local_vin_credit_order user, vin_amount, products
+
+    # update the balance on the user
+    @user_service.update_balance(user, vin_amount)
   end
 
   ###########
@@ -268,10 +272,10 @@ class OrderService
     end
   end
 
-  def calculate_vin_purchase_amount(data, products)
-    # look up the products - in this case they should be one or more VINOs bundles, which should all have the same currency (ZAR)
+  def calculate_vin_amount(data, products)
     amount = 0
 
+    # look up the products
     data[:products].each do |item|
       product = @product_service.get_product(item[:product_id])
       raise ApiError, INVALID_PRODUCT if product == nil
@@ -381,6 +385,12 @@ class OrderService
   def create_local_vin_purchase_order(user, checkout_id, amount, products)
     @order_repository.create_vin_purchase_order(user.id.to_s, checkout_id, amount,
                                                 @config[:default_fiat_currency], products)
+  end
+
+  def create_local_vin_credit_order(user, amount, products)
+    @order_repository.create_vin_credit_order(user.id.to_s, amount,
+                                             @config[:default_crypto_currency],
+                                             products, VIN_BONUS_MEMO)
   end
 
   def create_local_redemption_order(user, parsed_products, location, notes)
