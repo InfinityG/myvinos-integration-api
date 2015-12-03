@@ -103,10 +103,9 @@ class OrderService
     membership_type = get_product_membership_type data
     amount = calculate_vin_amount(data, products)
 
-    # check if the user's current balance is within the limit for the membership
-    # TODO: ensure the rules are correct
-    payment_required = user.balance < amount
-    # payment_required = true
+    # do we need to initiate a payment?
+    # payment_required = user.balance < amount
+    (membership_type == MEMBERSHIP_TYPE_BASIC) ? payment_required = false : payment_required = true
 
     if payment_required
       converted_amount = RateUtil.convert_vin_to_fiat amount

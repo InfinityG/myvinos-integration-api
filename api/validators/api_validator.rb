@@ -51,9 +51,9 @@ class ApiValidator
         errors.push NO_LOCATION_FOUND if data[:location] == nil || data[:location][:address].to_s == ''
         errors.push INVALID_ADDRESS unless GeneralValidator.validate_address data[:location][:address]
       end
-
-      raise ValidationError, {:valid => false, :errors => errors}.to_json if errors.count > 0
     end
+
+    raise ValidationError, {:valid => false, :errors => errors}.to_json if errors.count > 0
   end
 
 end
