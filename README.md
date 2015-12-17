@@ -346,39 +346,6 @@ __Sample response:__
 }
 ```
 
-#### Create an order to credit VINOS to a user
-
-- Uri: ```/admin/orders```
-- Method: POST
-- Headers: Authorization: [token]
-
-The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
-
-__Sample request:__
-
-```
-{
-    "type": "vin_credit",
-    "username":"johnny_bravo@test.com",
-    "products": [
-        {
-            "product_id": "72360",
-            "quantity": 1
-        }
-    ]
-}
-```
-
-__Sample response:__
-
-```
-{
-    "id": "4234",
-    "status": "complete"
-    "balance": "120"
-}
-```
-
 #### Get user details
 
 
@@ -412,6 +379,39 @@ __Sample response:__
             "last_4_digits": 1111
         }
     ]
+}
+```
+
+#### ADMIN: Create an order to credit VINOS to a user
+
+- Uri: ```/admin/orders```
+- Method: POST
+- Headers: Authorization: [token]
+
+The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
+
+__Sample request:__
+
+```
+{
+    "type": "vin_credit",
+    "username":"johnny_bravo@test.com",
+    "products": [
+        {
+            "product_id": "72360",
+            "quantity": 1
+        }
+    ]
+}
+```
+
+__Sample response:__
+
+```
+{
+    "id": "4234",
+    "status": "complete"
+    "balance": "120"
 }
 ```
 
