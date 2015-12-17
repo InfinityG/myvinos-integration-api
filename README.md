@@ -112,7 +112,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Create an order to redeem VINOS        | Standard     | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /orders [POST]                     | Authorization:[token]  |[sample](#create-an-order-to-redeem-vinos-for-physical-products)|
 | Get order list for user                | Standard     | Get a list of orders for a user                                                                              | /orders [GET]                      | Authorization:[token]  |[sample](#get-orders-for-user)|
 | Get user details                       | Standard     | Get the details for a particular user                                                                        | /users/{username} [GET]            | Authorization:[token]  |[sample](#get-user-details)|
-| Create an order to credit VINOS        | __Admin__    | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /admin/orders [POST]               | Authorization:[token]  |[TODO]|
+| Create an order to credit VINOS        | __Admin__    | Create an order to credit VINOS to a user                                                                    | /admin/orders [POST]               | Authorization:[token]  |[sample](#create-an-order-to-credit-vinos-to-a-user)|
 | Get user list                          | __Admin__    | Get a list of users                                                                                          | /admin/users [GET]                 | Authorization:[token]  |[TODO]|
 | Get order list for user                | __Admin__    | Get a list of orders for a user                                                                              | /admin/orders/{username} [GET]     | Authorization:[token]  |[TODO]|
 | Get all orders                         | __Admin__    | Get a list of all orders (filtered)                                                                          | /admin/orders [GET]                | Authorization:[token]  |[TODO]|
@@ -342,6 +342,39 @@ __Sample response:__
         "price": 35,
         "time_estimate": 520
     },
+    "balance": "120"
+}
+```
+
+#### Create an order to credit VINOS to a user
+
+- Uri: ```/admin/orders```
+- Method: POST
+- Headers: Authorization: [token]
+
+The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
+
+__Sample request:__
+
+```
+{
+    "type": "vin_credit",
+    "username":"johnny_bravo@test.com",
+    "products": [
+        {
+            "product_id": "72360",
+            "quantity": 1
+        }
+    ]
+}
+```
+
+__Sample response:__
+
+```
+{
+    "id": "4234",
+    "status": "complete"
     "balance": "120"
 }
 ```
