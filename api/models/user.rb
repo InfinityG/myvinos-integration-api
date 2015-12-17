@@ -14,6 +14,7 @@ module MyVinos
       key :balance, Integer
       key :pending_balance, Integer
       key :membership_type, String
+      key :role, String
 
       # many :addresses, :class_name => 'MyVinos::Models::Address'
       many :orders, :class_name => 'MyVinos::Models::Order'

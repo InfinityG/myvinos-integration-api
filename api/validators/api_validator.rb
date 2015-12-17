@@ -23,7 +23,7 @@ class ApiValidator
 
       raise ValidationError, {:valid => false, :errors => errors}.to_json if errors.count > 0
     end
-  end
+    end
 
   def validate_order(data)
     errors = []
@@ -36,7 +36,7 @@ class ApiValidator
       # errors.push INVALID_TYPE unless GeneralValidator.validate_string data[:type]
 
       if (!data[:type].to_s.downcase == 'vin_purchase') || (!data[:type].to_s.downcase == 'vin_redemption') ||
-          (!data[:type].to_s.downcase == 'mem_purchase')
+          (!data[:type].to_s.downcase == 'mem_purchase') || (!data[:type].to_s.downcase == 'vin_credit')
         errors.push INVALID_TYPE
       end
 
@@ -50,6 +50,10 @@ class ApiValidator
       if data[:type].to_s.downcase == 'vin_redemption'
         errors.push NO_LOCATION_FOUND if data[:location] == nil || data[:location][:address].to_s == ''
         errors.push INVALID_ADDRESS unless GeneralValidator.validate_address data[:location][:address]
+        end
+
+      if data[:type].to_s.downcase == 'vin_credit'
+        errors.push INVALID_USERNAME unless GeneralValidator.validate_string data[:username]
       end
     end
 

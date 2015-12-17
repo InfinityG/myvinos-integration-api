@@ -17,6 +17,10 @@ class OrderRepository
     Order.where(:user_id => user_id).all
   end
 
+  def get_all_orders
+    Order.all
+  end
+
   def get_non_abandoned_orders(user_id)
     Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}).all
   end

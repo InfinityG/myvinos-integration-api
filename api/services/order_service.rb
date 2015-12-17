@@ -11,7 +11,7 @@ require './api/repositories/order_repository'
 require './api/repositories/card_repository'
 require './api/gateways/payment_gateway'
 require './api/utils/time_util'
-# require './api/services/log_service'
+require './api/services/log_service'
 require './api/models/transaction'
 require './api/models/order'
 
@@ -20,6 +20,7 @@ class OrderService
   include ErrorConstants::ApiErrors
   include ApiConstants
   include ApiConstants::MembershipConstants
+  include ApiConstants::OperationConstants
   include TimeUtil
 
   def self.build(config_service = ConfigurationService,
@@ -30,14 +31,15 @@ class OrderService
       payment_gateway = PaymentGateway,
       user_service = UserService,
       card_repository = CardRepository,
-      delivery_service = DeliveryService)
+      delivery_service = DeliveryService,
+      log_service = LogService)
 
     new(config_service.new, order_repository.new, queue_service.new, product_service.new, product_gateway.new,
-        payment_gateway.new, user_service.new, delivery_service.new, card_repository.new)
+        payment_gateway.new, user_service.new, delivery_service.new, card_repository.new, log_service.new)
   end
 
   def initialize(config_service, order_repository, queue_service, product_service, product_gateway, payment_gateway,
-                 user_service, delivery_service, card_repository)
+                 user_service, delivery_service, card_repository, log_service)
     @config = config_service.get_config
     @queue_service = queue_service
     @product_service = product_service
@@ -47,10 +49,15 @@ class OrderService
     @user_service = user_service
     @delivery_service = delivery_service
     @card_repository = card_repository
+    @log_service = log_service
   end
 
   def get_orders(user)
     @order_repository.get_non_abandoned_orders(user.id.to_s)
+  end
+
+  def get_all_orders
+    @order_repository.get
   end
 
   def create_order(user, data)
@@ -63,6 +70,17 @@ class OrderService
         return create_mem_purchase_order(data, user)
       when VIN_REDEMPTION_TYPE
         return create_vin_redemption_order(data, user)
+      else
+        raise ApiError, UNRECOGNISED_PAYMENT_TYPE
+    end
+  end
+
+  def create_admin_order(admin_user, data)
+    type = data[:type]
+
+    case type
+      when VIN_CREDIT_TYPE
+        return create_vin_credit_order(admin_user, data)
       else
         raise ApiError, UNRECOGNISED_PAYMENT_TYPE
     end
@@ -223,16 +241,32 @@ class OrderService
     @user_service.update_balance(user, vin_amount)
   end
 
-  #########################
-  # VINOS CREDIT ORDERS
-  #########################
-  def create_vin_credit_order(data, user)
+  ####################################
+  # ADMIN ONLY - VINOS credit order
+  ####################################
+
+  def create_vin_credit_order(admin_user, data)
     products = []
+
+    username = data[:username]
+    user = @user_service.get_by_username username
+
     vin_amount = calculate_vin_amount(data, products)
-    create_local_vin_credit_order user, vin_amount, products
+    local_order = create_local_vin_credit_order user, vin_amount, products
 
     # update the balance on the user
-    @user_service.update_balance(user, vin_amount)
+    balance_result = @user_service.update_balance(user, vin_amount)
+
+    # log the admin user's action
+    @log_service.log_operation admin_user, 'create_vin_credit_order',
+                               "#{USER_BALANCE_UPDATE} | target user: #{username}; amount: #{vin_amount}"
+
+    {
+        :id => local_order.id.to_s,
+        :status => local_order.transaction.status,
+        :balance => balance_result[:balance]
+    }
+
   end
 
   ###########
@@ -262,7 +296,9 @@ class OrderService
         # return {:type => membership_type, :product => product}
         return {
             :type => membership_type,
-            :product_id => product.id.to_s,
+            # TODO: check the product ID!!!!!!!!!!
+            # :product_id => product.id.to_s,
+            :product_id => product.product_id.to_s,
             :quantity => 1,
             :name => product.name,
             :description => product.description,
@@ -388,8 +424,8 @@ class OrderService
 
   def create_local_vin_credit_order(user, amount, products)
     @order_repository.create_vin_credit_order(user.id.to_s, amount,
-                                             @config[:default_crypto_currency],
-                                             products, VIN_BONUS_MEMO)
+                                              @config[:default_crypto_currency],
+                                              products, VIN_BONUS_MEMO)
   end
 
   def create_local_redemption_order(user, parsed_products, location, notes)

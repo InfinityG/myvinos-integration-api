@@ -1,12 +1,9 @@
-# require 'sinatra/base'
-# require './api/routes/auth'
 require './api/services/product_service'
 
 module Sinatra
   module ProductRoutes
     def self.registered(app)
 
-      #get users
       app.get '/products' do
         content_type :json
 
@@ -25,7 +22,6 @@ module Sinatra
 
       end
 
-      #get user details
       app.get '/products/:product_id' do
         content_type :json
 

@@ -150,6 +150,34 @@ class ProductGateway
     end
   end
 
+  def update_user(third_party_id, email, first_name, last_name, mobile_number)
+    auth_header = @key_provider.get_product_api_auth_key
+
+    begin
+
+      uri= "#{@config[:product_api_uri]}/customers/#{third_party_id}"
+
+      data = {
+          :customer => {
+              :billing_address => {
+              }
+          }
+      }
+
+      data[:customer][:email] = email if email.to_s != ''
+      data[:customer][:first_name] = first_name if first_name.to_s != ''
+      data[:customer][:last_name] = last_name if last_name.to_s != ''
+      data[:customer][:billing_address][:phone] = mobile_number if mobile_number.to_s != ''
+
+      @rest_util.execute_post(uri, auth_header, data.to_json)
+
+    rescue RestClient::Exception => e
+      message = "#{THIRD_PARTY_USER_UPDATE_ERROR}: #{e.http_code} | #{e.http_body}"
+      @log_service.log_error message
+      raise ApiError, message
+    end
+  end
+
   def create_order(user, address, products)
 
     data = {

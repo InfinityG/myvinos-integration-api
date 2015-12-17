@@ -3,6 +3,7 @@ require 'sinatra/base'
 require './api/validators/api_validator'
 require './api/errors/api_error'
 require './api/services/user_service'
+require './api/utils/csv_generator'
 
 module Sinatra
   module UserRoutes
@@ -25,7 +26,8 @@ module Sinatra
 
       end
 
-      app.get '/users' do
+      # ADMIN ROUTE
+      app.get '/admin/users' do
         content_type :json
 
         begin
@@ -36,8 +38,21 @@ module Sinatra
           status 500
           return e.message.to_json
         end
+        end
 
-      end
+      # ADMIN ROUTE - this is currently only needed to change the user's BALANCE
+      # app.post '/admin/users/:username' do
+      #   content_type :json
+      #
+      #   begin
+      #     user_service = UserService.new
+      #     user = user_service.get_all
+      #     user.to_json
+      #   rescue ApiError => e
+      #     status 500
+      #     return e.message.to_json
+      #   end
+      # end
 
     end
 

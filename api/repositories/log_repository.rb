@@ -8,7 +8,7 @@ class LogRepository
   include BSON
   include MyVinos::Models
 
-  def create(user_id, type, type_id, operation, description)
-    Log.create(:user_id => user_id, :type => type, :type_id => type_id, :operation => operation, :description => description)
+  def create(user_id, username, operation, description)
+    Log.create(:user_id => user_id, :username => username, :operation => operation, :description => description)
   end
 end

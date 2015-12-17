@@ -30,4 +30,8 @@ module ApiConstants
     MEMBERSHIP_TYPE_PLATINUM = 'platinum'
     MEMBERSHIP_TYPES = [MEMBERSHIP_TYPE_BASIC, MEMBERSHIP_TYPE_GOLD, MEMBERSHIP_TYPE_PLATINUM, MEMBERSHIP_TYPE_SILVER]
   end
+
+  module OperationConstants
+    USER_BALANCE_UPDATE = 'user balance update'
+  end
 end

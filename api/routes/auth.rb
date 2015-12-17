@@ -15,7 +15,7 @@ module Sinatra
         if (method == 'OPTIONS') ||
             (method == 'GET' && path == '/products') ||
             (method == 'GET' && (path.include? '/products/')) ||
-            (method == 'POST' && path == '/users') ||
+            # (method == 'POST' && path == '/users') ||
             (method == 'POST' && path == '/tokens')
           return
         else
@@ -24,9 +24,19 @@ module Sinatra
           halt 401, 'Unauthorized!' if auth_header == nil
 
           # api auth token routes - use the api token in the config file
-          if path == '/users'
-            api_auth = ConfigurationService.new.get_config[:api_auth_token]
-            halt 401, 'Unauthorized!' if api_auth != auth_header
+          if path.include? '/admin/'
+
+            # api_auth = ConfigurationService.new.get_config[:api_auth_token]
+            # halt 401, 'Unauthorized!' if api_auth != auth_header
+
+            token = TokenService.new.get_token(auth_header)
+            halt 401, 'Unauthorized!' if token == nil
+
+            user = UserService.new.get_by_id token[:user_id]
+            halt 401, 'Unauthorized!' if user.role.to_s.downcase != 'admin'
+
+            @current_user = user
+
           else
             # all other routes are user-specific
             token = TokenService.new.get_token(auth_header)

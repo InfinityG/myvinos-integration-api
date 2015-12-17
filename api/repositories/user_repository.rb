@@ -12,6 +12,10 @@ class UserRepository
 
   def get_all_users
     User.all
+    end
+
+  def get_all_users_paged(offset, count)
+    User.all
   end
 
   def get_user(user_id)
@@ -50,28 +54,22 @@ class UserRepository
 
   def update_membership_type(user_id, membership_type)
     User.set({:id => user_id}, :membership_type => membership_type)
+    end
+
+  def update_role(user_id, role)
+    User.set({:id => user_id}, :role => role)
   end
 
-  # def update(username, first_name = '', last_name = '', email = '', balance = 0,
-  #                         billing_address = nil, shipping_address = nil)
-  #
-  #   # user will always exist as the token creation process will auto-create the user
-  #   user = get_by_username(username)
-  #
-  #   # # user already exists
-  #   # user.first_name = first_name
-  #   # user.last_name = last_name
-  #   # user.email = email
-  #   # user.save
-  #
-  #
-  #   addresses = []
-  #   addresses << billing_address if billing_address != nil
-  #   addresses << shipping_address if shipping_address != nil
-  #
-  #   User.create(username: username, first_name: first_name, last_name: last_name,
-  #                      email: email, balance: balance, addresses: addresses)
-  # end
+  def update(user, first_name, last_name, email, mobile_number)
+    user.first_name = first_name if first_name.to_s != ''
+    user.last_name = last_name if last_name.to_s != ''
+    user.email = email if email.to_s != ''
+    user.mobile_number = mobile_number if mobile_number.to_s != ''
+
+    user.save
+
+    user
+  end
 
   def delete_user(user_id)
     User.destroy(user_id)
