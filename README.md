@@ -112,7 +112,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Get user details                       | Standard     | Get the details for a particular user                                                                        | /users/{username} [GET]            | Authorization:[token]  |[sample](#get-user-details)|
 | Create an order to credit VINOS        | __Admin__    | Create an order to credit VINOS to a user                                                                    | /admin/orders [POST]               | Authorization:[token]  |[sample](#admin-create-an-order-to-credit-vinos-to-a-user)|
 | Get user list                          | __Admin__    | Get a list of users                                                                                          | /admin/users [GET]                 | Authorization:[token]  |[TODO]|
-| Get all orders                         | __Admin__    | Get a list of all orders (filtered)                                                                          | /admin/orders [GET]                | Authorization:[token]  |[TODO]|
+| Get all orders                         | __Admin__    | Get a list of all orders (filtered)                                                                          | /admin/orders [GET]                | Authorization:[token]  |[sample](#admin-get-all-orders-filtered)|
 
 #### Get products
 
@@ -352,10 +352,10 @@ __Sample response:__
 #### Get list of orders for a user
 
 - Uri: ```/orders```
-- Uri with optional querystring parameters (filters): ```/orders?offset=2&limit=10&type=vin_purchase```
-    - ```offset``` is used for paging and represents the page number
-    - ```limit``` is used for paging and represents the page record length
-    - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
+    - Optional querystring parameters - eg: ```/orders?offset=2&limit=10&type=vin_purchase```
+        - ```offset``` is used for paging and represents the page number
+        - ```limit``` is used for paging and represents the page record length
+        - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
 - Method: GET
 - Headers: 
     - Authorization: [token] __required__
@@ -473,11 +473,11 @@ __Sample response:__
 
 #### ADMIN: Get all orders (filtered)
 
-- Uri: ```/orders```
-- Uri with optional querystring parameters (filters): ```/orders?offset=1&limit=2&type=vin_credit&username=johnny_bravo@test.com```
-    - ```offset``` is used for paging and represents the page number
-    - ```limit``` is used for paging and represents the page record length
-    - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
+- Uri: ```/admin/orders```
+    - Optional querystring parameters - eg: ```/orders?offset=1&limit=2&type=vin_credit&username=johnny_bravo@test.com```
+        - ```offset``` is used for paging and represents the page number
+        - ```limit``` is used for paging and represents the page record length
+        - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
     - ```username``` filters by a particular username
 - Method: GET
 - Headers: 
