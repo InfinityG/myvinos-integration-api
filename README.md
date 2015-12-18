@@ -269,7 +269,8 @@ __Sample response:__
 
 - Uri: ```/orders```
 - Method: POST
-- Headers: Authorization: [token]
+- Headers: 
+    - Authorization: [token]
 
 __Sample request:__
 
@@ -309,7 +310,8 @@ OR
 
 - Uri: ```/orders```
 - Method: POST
-- Headers: Authorization: [token]
+- Headers: 
+    - Authorization: [token]
 
 __Sample request:__
 
@@ -346,12 +348,64 @@ __Sample response:__
 }
 ```
 
-#### Get user details
+#### Get list of orders for a user
 
+- Uri: ```/orders```
+- Uri with optional querystring parameters (filters): ```/orders?offset=2&limit=10&type=vin_purchase```
+    - ```offset``` is used for paging and represents the page number
+    - ```limit``` is used for paging and represents the page record length
+    - ```type``` represents the order type
+- Method: GET
+- Headers: 
+    - Authorization: [token] (REQUIRED)
+    - Accept: ```application/json``` OR ```text/csv``` (optional - will default to ```application/json```)
+
+__Sample response:__
+
+```
+[
+    {
+        "type": "vin_purchase",
+        "user_id": "12312",
+        "external_order_id": null,
+        "transaction": {
+            "type": "vin_redemption",
+            "external_transaction_id": "2132112",
+            "checkout_id": "F095C2157ADD02050ABA6DCBB065D046.sbg-vm-tx01",
+            "amount": "1000",
+            "currency": "ZAR",
+            "status": "complete"
+        },
+        "delivery": null,
+        "products": [
+            {
+                "product_id": 71227,
+                "product_type": "Top-up",
+                "supplier": "MyVinos",
+                "producer": null,
+                "price": "100",
+                "currency": "ZAR",
+                "name": "VINOS Top-up: R1,000",
+                "description": "",
+                "image_url": "https://myvinos.club/wp-content/uploads/2015/04/VinosInvest-Gold.png",
+                "tags": {
+                    "color": null,
+                    "grapes": [],
+                    "style": [],
+                    "mood": []
+                }
+            }
+        ]
+    }
+]
+```
+
+#### Get user details
 
 - Uri: ```/users/{username}```
 - Method: GET
-- Headers: Authorization: [token]
+- Headers: 
+    - Authorization: [token]
 
 __Sample response:__
 
@@ -386,7 +440,8 @@ __Sample response:__
 
 - Uri: ```/admin/orders```
 - Method: POST
-- Headers: Authorization: [token]
+- Headers: 
+    - Authorization: [token]
 
 The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
 
