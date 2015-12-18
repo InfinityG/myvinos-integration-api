@@ -238,7 +238,8 @@ __Sample response:__
 
 - Uri: ```/orders```
 - Method: POST
-- Headers: Authorization: [token]
+- Headers: 
+    - Authorization: [token] __REQUIRED__
 
 __Sample request:__
 
@@ -270,7 +271,7 @@ __Sample response:__
 - Uri: ```/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token]
+    - Authorization: [token] __REQUIRED__
 
 __Sample request:__
 
@@ -311,7 +312,7 @@ OR
 - Uri: ```/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token]
+    - Authorization: [token] __REQUIRED__
 
 __Sample request:__
 
@@ -357,7 +358,7 @@ __Sample response:__
     - ```type``` represents the order type
 - Method: GET
 - Headers: 
-    - Authorization: [token] (REQUIRED)
+    - Authorization: [token] __REQUIRED__
     - Accept: ```application/json``` OR ```text/csv``` (optional - will default to ```application/json```)
 
 __Sample response:__
@@ -405,7 +406,7 @@ __Sample response:__
 - Uri: ```/users/{username}```
 - Method: GET
 - Headers: 
-    - Authorization: [token]
+    - Authorization: [token] __REQUIRED__
 
 __Sample response:__
 
@@ -441,7 +442,7 @@ __Sample response:__
 - Uri: ```/admin/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token]
+    - Authorization: [token] __REQUIRED__
 
 The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
 
