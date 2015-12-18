@@ -448,7 +448,8 @@ __Sample response:__
 - Headers: 
     - Authorization: [token] __required__
 
-The authorization token must be of an admin user. The product in the product list must be a VINOS top-up product.
+The authorization token must be for an admin user. The username in the payload is that of the user to be credited.
+The product in the product array must be a VINOS top-up product.
 
 __Sample request:__
 
