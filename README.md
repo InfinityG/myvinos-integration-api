@@ -112,7 +112,6 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Get user details                       | Standard     | Get the details for a particular user                                                                        | /users/{username} [GET]            | Authorization:[token]  |[sample](#get-user-details)|
 | Create an order to credit VINOS        | __Admin__    | Create an order to credit VINOS to a user                                                                    | /admin/orders [POST]               | Authorization:[token]  |[sample](#admin-create-an-order-to-credit-vinos-to-a-user)|
 | Get user list                          | __Admin__    | Get a list of users                                                                                          | /admin/users [GET]                 | Authorization:[token]  |[TODO]|
-| Get order list for user                | __Admin__    | Get a list of orders for a user                                                                              | /admin/orders/{username} [GET]     | Authorization:[token]  |[TODO]|
 | Get all orders                         | __Admin__    | Get a list of all orders (filtered)                                                                          | /admin/orders [GET]                | Authorization:[token]  |[TODO]|
 
 #### Get products
@@ -240,7 +239,7 @@ __Sample response:__
 - Uri: ```/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
 
 __Sample request:__
 
@@ -272,7 +271,7 @@ __Sample response:__
 - Uri: ```/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
 
 __Sample request:__
 
@@ -313,7 +312,7 @@ OR
 - Uri: ```/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
 
 __Sample request:__
 
@@ -356,13 +355,13 @@ __Sample response:__
 - Uri with optional querystring parameters (filters): ```/orders?offset=2&limit=10&type=vin_purchase```
     - ```offset``` is used for paging and represents the page number
     - ```limit``` is used for paging and represents the page record length
-    - ```type``` represents the order type
+    - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
 - Method: GET
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
     - Accept: ```application/json``` OR ```text/csv``` (optional - will default to ```application/json```)
 
-__Sample response:__
+__Sample response (JSON):__
 
 ```
 [
@@ -407,7 +406,7 @@ __Sample response:__
 - Uri: ```/users/{username}```
 - Method: GET
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
 
 __Sample response:__
 
@@ -443,9 +442,9 @@ __Sample response:__
 - Uri: ```/admin/orders```
 - Method: POST
 - Headers: 
-    - Authorization: [token] __REQUIRED__
+    - Authorization: [token] __required__
 
-The logged in user must be an admin user. The product in the product list must be a VINOS top-up product.
+The authorization token must be of an admin user. The product in the product list must be a VINOS top-up product.
 
 __Sample request:__
 
@@ -470,6 +469,88 @@ __Sample response:__
     "status": "complete"
     "balance": "120"
 }
+```
+
+#### ADMIN: Get all orders (filtered)
+
+- Uri: ```/orders```
+- Uri with optional querystring parameters (filters): ```/orders?offset=1&limit=2&type=vin_credit&username=johnny_bravo@test.com```
+    - ```offset``` is used for paging and represents the page number
+    - ```limit``` is used for paging and represents the page record length
+    - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
+    - ```username``` filters by a particular username
+- Method: GET
+- Headers: 
+    - Authorization: [token] __required__
+    - Accept: ```application/json``` OR ```text/csv``` (optional - will default to ```application/json```)
+
+The authorization token must be of an admin user. 
+
+__Sample response (JSON):__
+
+```
+[
+    {
+        "created_at": "2015-12-17T16:02:52.609Z",
+        "delivery": null,
+        "id": "5672dcacb85a54415b000292",
+        "products": [
+            {
+                "categories": [],
+                "description": "",
+                "id": "5672dcacb85a54415b000293",
+                "name": "VINOS Reward 5",
+                "price": "5",
+                "product_id": "72360",
+                "quantity": 1,
+                "tags": {}
+            }
+        ],
+        "transaction": {
+            "amount": "5",
+            "created_at": "2015-12-17T16:02:52.613Z",
+            "currency": "VINOS",
+            "id": "5672dcacb85a54415b000291",
+            "memo": "vinos credit",
+            "status": "complete",
+            "type": "vin_credit",
+            "updated_at": "2015-12-17T16:02:52.613Z"
+        },
+        "type": "vin_credit",
+        "updated_at": "2015-12-17T16:02:52.609Z",
+        "user_id": "563d0b47b85a5435fd000001"
+    },
+    {
+        "created_at": "2015-12-17T15:58:39.859Z",
+        "delivery": null,
+        "id": "5672dbafb85a544148000002",
+        "products": [
+            {
+                "categories": [],
+                "description": "",
+                "id": "5672dbafb85a544148000003",
+                "name": "VINOS Reward 5",
+                "price": "5",
+                "product_id": "72360",
+                "quantity": 1,
+                "tags": {}
+            }
+        ],
+        "transaction": {
+            "amount": "5",
+            "created_at": "2015-12-17T15:58:39.862Z",
+            "currency": "VINOS",
+            "id": "5672dbafb85a544148000001",
+            "memo": "vinos credit",
+            "status": "complete",
+            "type": "vin_credit",
+            "updated_at": "2015-12-17T15:58:39.862Z"
+        },
+        "type": "vin_credit",
+        "updated_at": "2015-12-17T15:58:39.859Z",
+        "user_id": "563d0b47b85a5435fd000001"
+    }
+]
 ```
 
 ## Live environment and topology
