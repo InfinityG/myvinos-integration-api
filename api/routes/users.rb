@@ -28,31 +28,34 @@ module Sinatra
 
       # ADMIN ROUTE
       app.get '/admin/users' do
-        content_type :json
 
         begin
+          offset = params[:offset]
+          limit = params[:limit]
+          username = params[:username]
+
           user_service = UserService.new
-          user = user_service.get_all
-          user.to_json
+          user = user_service.get_all offset, limit, username
+          json = user.to_json
+
+          request.accept.each do |accept_type|
+            case accept_type.to_s
+              when 'text/csv'
+                content_type 'application/csv'
+                attachment 'users.csv'
+                return CsvGenerator.json_to_csv json
+              else
+                content_type :json
+                return json
+            end
+          end
+
+          # user.to_json
         rescue ApiError => e
           status 500
           return e.message.to_json
         end
         end
-
-      # ADMIN ROUTE - this is currently only needed to change the user's BALANCE
-      # app.post '/admin/users/:username' do
-      #   content_type :json
-      #
-      #   begin
-      #     user_service = UserService.new
-      #     user = user_service.get_all
-      #     user.to_json
-      #   rescue ApiError => e
-      #     status 500
-      #     return e.message.to_json
-      #   end
-      # end
 
     end
 

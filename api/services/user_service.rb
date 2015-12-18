@@ -78,9 +78,8 @@ class UserService
     user
   end
 
-  #TODO: refactor this to handle paging
-  def get_all
-    @user_repository.get_all_users
+  def get_all(offset=nil, limit=nil, username=nil)
+    @user_repository.get_all_users offset, limit, username
   end
 
   def get_by_id(user_id)

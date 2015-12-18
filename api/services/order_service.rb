@@ -52,12 +52,18 @@ class OrderService
     @log_service = log_service
   end
 
-  def get_orders(user)
-    @order_repository.get_non_abandoned_orders(user.id.to_s)
+  def get_orders(user, offset=nil, limit=nil, type=nil)
+    @order_repository.get_non_abandoned_orders(user.id.to_s, offset, limit, type)
   end
 
-  def get_all_orders
-    @order_repository.get
+  def get_all_orders(offset=nil, limit=nil, type=nil, username=nil)
+    if username != nil
+      user = @user_service.get_by_username username
+      user_id = user.id.to_s
+      return @order_repository.get_all_orders offset, limit, type, user_id
+    end
+
+    @order_repository.get_all_orders offset, limit, type
   end
 
   def create_order(user, data)

@@ -35,7 +35,7 @@ class CsvGenerator
         end
       else
         current_parent = item_parent != nil ? item_parent + '.' + key.to_s : key.to_s
-        current_row << current_parent + ':' + value.to_s
+        current_row << current_parent + '|' + value.to_s
 
         unless header_row.include? current_parent
           header_row << current_parent
@@ -50,7 +50,7 @@ class CsvGenerator
     rows.each do |row|
       arr = Array.new(header_len)
       row.each do |item|
-        pair = item.to_s.split(':')
+        pair = item.to_s.split('|')
         header = pair[0]
         value = pair[1]
 

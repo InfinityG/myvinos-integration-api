@@ -10,12 +10,18 @@ class UserRepository
   include BSON
   include MyVinos::Models
 
-  def get_all_users
+  def get_users
     User.all
     end
 
-  def get_all_users_paged(offset, count)
-    User.all
+  def get_all_users(offset=nil, limit=nil, username=nil)
+    if offset == nil || limit == nil
+      (username == nil) ? User.sort(:username.asc) : User.where(:username => username).sort(:username.asc)
+    else
+      (username == nil) ?
+          User.paginate({:order => :username.asc, :per_page => limit, :page => offset}) :
+          User.where(:username => username).paginate({:order => :username.asc, :per_page => limit, :page => offset})
+    end
   end
 
   def get_user(user_id)

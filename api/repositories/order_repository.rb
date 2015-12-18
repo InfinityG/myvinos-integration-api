@@ -17,12 +17,43 @@ class OrderRepository
     Order.where(:user_id => user_id).all
   end
 
-  def get_all_orders
-    Order.all
+  def get_all_orders(offset=nil, limit=nil, type=nil, user_id=nil)
+
+    if offset == nil || limit == nil
+      if type == nil
+        (user_id == nil) ? Order.all : Order.where(:user_id => user_id).all
+      else
+        (user_id == nil) ? Order.where(:type => type).all : Order.where(:type => type, :user_id => user_id).all
+      end
+    else
+      if type == nil
+        (user_id == nil) ?
+            Order.paginate({:order => :created_at.desc, :per_page => limit, :page => offset}) :
+            Order..where(:user_id => user_id).paginate({:order => :created_at.desc, :per_page => limit, :page => offset})
+      else
+        (user_id == nil) ?
+            Order.where(:type => type).paginate({:order => :created_at.desc, :per_page => limit, :page => offset}) :
+            Order.where(:type => type, :user_id => user_id).paginate({:order => :created_at.desc, :per_page => limit, :page => offset})
+      end
+    end
+
   end
 
-  def get_non_abandoned_orders(user_id)
-    Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}).all
+  def get_non_abandoned_orders(user_id, offset=nil, limit=nil, type = nil)
+
+    if offset == nil || limit == nil
+      (type == nil) ?
+          Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}).all :
+          Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}, :type => type).all
+    else
+      (type == nil) ?
+          Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED})
+              .paginate({:order => :created_at.desc, :per_page => limit, :page => offset}) :
+          Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}, :type => type)
+              .paginate({:order => :created_at.desc, :per_page => limit, :page => offset})
+    end
+
+    # Order.where(:user_id => user_id, 'transaction.status' => {:$ne => PAYMENT_STATUS_ABANDONED}).all
   end
 
   def create_vin_purchase_order(user_id, checkout_id, amount, currency, products)
