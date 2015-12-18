@@ -111,7 +111,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Get order list for user                | Standard     | Get a list of orders for a user                                                                              | /orders [GET]                      | Authorization:[token]  |[sample](#get-list-of-orders-for-a-user)|
 | Get user details                       | Standard     | Get the details for a particular user                                                                        | /users/{username} [GET]            | Authorization:[token]  |[sample](#get-user-details)|
 | Create an order to credit VINOS        | __Admin__    | Create an order to credit VINOS to a user                                                                    | /admin/orders [POST]               | Authorization:[token]  |[sample](#admin-create-an-order-to-credit-vinos-to-a-user)|
-| Get user list                          | __Admin__    | Get a list of users                                                                                          | /admin/users [GET]                 | Authorization:[token]  |[TODO]|
+| Get all users                          | __Admin__    | Get a list of all users (filtered)                                                                           | /admin/users [GET]                 | Authorization:[token]  |[sample](#admin-get-all-users-filtered)|
 | Get all orders                         | __Admin__    | Get a list of all orders (filtered)                                                                          | /admin/orders [GET]                | Authorization:[token]  |[sample](#admin-get-all-orders-filtered)|
 
 #### Get products
@@ -403,6 +403,8 @@ __Sample response (JSON):__
 
 #### Get user details
 
+Allows an authenticated user to retrieve basic account details.
+
 - Uri: ```/users/{username}```
 - Method: GET
 - Headers: 
@@ -471,6 +473,56 @@ __Sample response:__
 }
 ```
 
+#### ADMIN: Get all users (filtered)
+ 
+- Uri: ```/admin/users```
+    - Optional querystring parameters - eg: ```/users?offset=1&limit=2&username=johnny_bravo@test.com```
+        - ```offset``` is used for paging and represents the page number
+        - ```limit``` is used for paging and represents the page record length
+        - ```username``` filters by a particular username
+- Method: GET
+- Headers: 
+    - Authorization: [token] __required__
+    - Accept: ```application/json``` OR ```text/csv``` (optional - will default to ```application/json```)
+
+The authorization token must be of an admin user. 
+
+__Sample response (JSON):__
+
+```
+[
+    {
+        "balance": 20,
+        "created_at": "2015-12-17T16:40:43.501Z",
+        "email": "jenny_bravo1@test.com",
+        "external_id": "5672e2e0b85a5440c4000002",
+        "first_name": "Jenny",
+        "id": "5672e58bb85a5441f6000001",
+        "last_name": "Bravo",
+        "mobile_number": "+2723456789",
+        "pending_balance": 0,
+        "third_party_id": "855",
+        "updated_at": "2015-12-17T17:02:59.505Z",
+        "username": "jenny_bravo1@test.com"
+    },
+    {
+        "balance": 975,
+        "created_at": "2015-10-03T10:32:36.489Z",
+        "email": "johnny_bravo@test.com",
+        "external_id": "560e956db85a54455c000001",
+        "first_name": "Johnny",
+        "id": "560faec4b85a5448e3000001",
+        "last_name": "Bravo",
+        "mobile_number": "+2723456789",
+        "meta": "jkh1k2jh3",
+        "pending_balance": 0,
+        "third_party_id": "704",
+        "updated_at": "2015-11-06T18:07:36.491Z",
+        "username": "johnny_bravo@test.com"
+    }
+]
+```
+
 #### ADMIN: Get all orders (filtered)
 
 - Uri: ```/admin/orders```
@@ -478,7 +530,7 @@ __Sample response:__
         - ```offset``` is used for paging and represents the page number
         - ```limit``` is used for paging and represents the page record length
         - ```type``` filters by order type (```vin_purchase```, ```vin_redemption```, ```mem_purchase```, ```vin_credit```)
-    - ```username``` filters by a particular username
+        - ```username``` filters by a particular username
 - Method: GET
 - Headers: 
     - Authorization: [token] __required__
