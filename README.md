@@ -99,8 +99,6 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 |                    | Complete forgotten password flow       | /users/reset [POST] | none    |         |          |                                                                                                                                                                                                                                              
                                                                                                                                             
                                                                                                                                              
-                                                                                                                                             
-
 ### MyVinos API
 
 | Operation                              | Type         | Description                                                                                                  | Endpoint                           | Headers                | Samples |
@@ -110,7 +108,7 @@ An external identity provider, ID-IO, is used to authenticate registered users. 
 | Create an order to purchase VINOS      | Standard     | Create an order to purchase VINOS credits                                                                    | /orders [POST]                     | Authorization:[token]  |[sample](#create-an-order-to-purchase-vinos)|
 | Create an order to purchase membership | Standard     | Create an order to purchase a membership                                                                     | /orders [POST]                     | Authorization:[token]  |[sample](#create-an-order-to-purchase-membership)|
 | Create an order to redeem VINOS        | Standard     | Create an order to redeem VINOS for physical items. Request also contains location information for delivery. | /orders [POST]                     | Authorization:[token]  |[sample](#create-an-order-to-redeem-vinos-for-physical-products)|
-| Get order list for user                | Standard     | Get a list of orders for a user                                                                              | /orders [GET]                      | Authorization:[token]  |[sample](#get-orders-for-user)|
+| Get order list for user                | Standard     | Get a list of orders for a user                                                                              | /orders [GET]                      | Authorization:[token]  |[sample](#get-list-of-orders-for-a-user)|
 | Get user details                       | Standard     | Get the details for a particular user                                                                        | /users/{username} [GET]            | Authorization:[token]  |[sample](#get-user-details)|
 | Create an order to credit VINOS        | __Admin__    | Create an order to credit VINOS to a user                                                                    | /admin/orders [POST]               | Authorization:[token]  |[sample](#admin-create-an-order-to-credit-vinos-to-a-user)|
 | Get user list                          | __Admin__    | Get a list of users                                                                                          | /admin/users [GET]                 | Authorization:[token]  |[TODO]|
@@ -214,6 +212,9 @@ __Sample response:__
 ```
 
 #### Create access token 
+
+Prerequisite: an auth payload must be generated via the ID-IO identity provider first. This payload is then sent in its entirety 
+to the endpoint below. 
 
 - Uri: ```/tokens```
 - Method: POST
